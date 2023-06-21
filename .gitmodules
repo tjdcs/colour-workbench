@@ -1,0 +1,9 @@
+[submodule "submodules/colour-science"]
+	path = submodules/colour-science
+	url = https://github.com/colour-science/colour
+[submodule "submodules/colour-datasets"]
+	path = submodules/colour-datasets
+	url = https://github.com/colour-science/colour-datasets
+[submodule "submodules/colour-specio"]
+	path = submodules/colour-specio
+	url = https://github.com/colour-science/colour-specio
