@@ -1,3 +1,6 @@
+.sandbox
+.vscode
+.idea
 # Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos,visualstudiocode,visualstudio,python,emacs,vim,pycharm
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,visualstudiocode,visualstudio,python,emacs,vim,pycharm
 
