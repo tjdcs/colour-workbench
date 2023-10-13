@@ -2,7 +2,7 @@ import json
 from time import sleep
 from typing import cast
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
 import requests
 
 from colour_workbench.utilities import get_logger
@@ -76,7 +76,7 @@ class TPGController:
             headers = {"Content-Type": "application/json"}
 
             requests.request("PUT", url, headers=headers, data=payload)
-            TPG_LOG.info(
+            TPG_LOG.debug(
                 f"Sending color: {color[0]:.2f}, {color[1]:.2f}, {color[2]:.2f}"
             )
         except Exception as e:

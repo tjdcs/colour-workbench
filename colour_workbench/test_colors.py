@@ -5,6 +5,8 @@ from colour.hints import NDArrayInt
 import numpy as np
 import numpy.typing as npt
 from colour.models.rgb.transfer_functions import st_2084 as pq
+from xxhash import xxh3_64_digest, xxh3_64_hexdigest
+import xxhash
 
 
 @dataclass
@@ -93,7 +95,11 @@ class PQ_TestColorsConfig(TestColorsConfig):
         int
             hash((int, int, int, etc... ))
         """
-        return hash(self.__dict__.values())
+        xxh = xxhash.xxh3_64()
+        for v in self.__dict__.values():
+            xxh.update(str(v))
+
+        return xxh.intdigest()
 
 
 def generate_colors(
