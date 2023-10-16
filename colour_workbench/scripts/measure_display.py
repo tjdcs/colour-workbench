@@ -1,14 +1,21 @@
 #!python3
 
+import argparse
+import datetime
+import os
+import tempfile
+from pathlib import Path
+
 from specio import ColorimetryResearch
 from specio.ColorimetryResearch import CR_Definitions
+from specio.fileio import MeasurementList_Notes, save_measurements
 from specio.spectrometer import SpecRadiometer
+from traitlets import default
+
+from colour_workbench import ETC_reports
 from colour_workbench.display_measures import DisplayMeasureController, ProgressPrinter
 from colour_workbench.test_colors import PQ_TestColorsConfig, generate_colors
 from colour_workbench.tpg_controller import TPGController
-
-import argparse
-
 
 program_description = """Analyze a display for colorimetric linearity and accuracy. This program does 
 not specifically evaluate a display's adherence to a particular color standard 
@@ -123,6 +130,24 @@ parser.add_argument(
     default="normal",
 )
 
+default_path = "./"
+
+parser.add_argument(
+    "--save-directory",
+    help=f"Location to save measurement files. Default = {default_path}",
+    default=default_path,
+    required=False,
+    type=str,
+)
+
+parser.add_argument(
+    "--save-file",
+    help=f"Name of save file. Default = 'DisplayMeasurements_YYMMDD_HHMM",
+    default=datetime.datetime.now().strftime("Display_Measurements_%y%m%d_%H%M"),
+    required=False,
+    type=str,
+)
+
 args = parser.parse_args()
 pass
 tcc = PQ_TestColorsConfig(
@@ -148,6 +173,19 @@ dmc = DisplayMeasureController(
     tpg=tpg, cr=cr, color_list=test_colors, progress_callbacks=[ProgressPrinter()]
 )
 dmc.random_colors_duration = args.stabilization_time
+
+save_path = Path(args.save_directory, args.save_file)
+save_path.mkdir(parents=True, exist_ok=True)
+
 measurements = dmc.run_measurement_cycle(warmup_time=args.warmup * 60)
 
+tpg.send_color((0, 0, 0))
+
+save_measurements(
+    str(save_path.resolve()),
+    measurements=measurements,
+    order=test_colors.order.tolist(),
+    testColors=test_colors.colors,
+    notes=MeasurementList_Notes(),
+)
 pass
