@@ -1,9 +1,9 @@
 [submodule "submodules/colour-science"]
 	path = submodules/colour-science
-	url = https://github.com/colour-science/colour
+	url = "https://github.com/colour-science/colour#develop"
 [submodule "submodules/colour-datasets"]
 	path = submodules/colour-datasets
-	url = https://github.com/colour-science/colour-datasets
+	url = "https://github.com/colour-science/colour-datasets#develop"
 [submodule "submodules/colour-specio"]
 	path = submodules/colour-specio
-	url = https://github.com/colour-science/colour-specio
+	url = "https://github.com/colour-science/colour-specio#main"
