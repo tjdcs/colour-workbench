@@ -4,13 +4,13 @@ version = "0.1.0"
 description = ""
 authors = ["Tucker Downs <tucker@roevisual.us>"]
 readme = "README.md"
-packages = [{include = "colour_workbench"}]
+packages = [{ include = "colour_workbench" }]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.12"
-colour-science = {path = "submodules/colour-science", develop = true}
-colour-datasets = {path = "submodules/colour-datasets", develop = true}
-colour-specio = {path = "submodules/colour-specio", develop = true}
+python = ">=3.10,<3.12"
+colour-science = { path = "submodules/colour-science", develop = true }
+colour-datasets = { path = "submodules/colour-datasets", develop = true }
+colour-specio = { path = "submodules/colour-specio", develop = true }
 numpy = "^1.25.0"
 scipy = "^1.10.1"
 xxhash = "^3.2.0"

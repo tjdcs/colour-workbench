@@ -1,6 +1,9 @@
+import importlib
+import importlib.resources
 from typing import Tuple
 
 import matplotlib
+import matplotlib.font_manager
 import numpy as np
 from colour.colorimetry.datasets.illuminants.sds import SDS_ILLUMINANTS
 from colour.colorimetry.tristimulus_values import sd_to_XYZ
@@ -18,13 +21,9 @@ from matplotlib.figure import Figure
 from matplotlib.gridspec import SubplotSpec
 from matplotlib.patches import Polygon
 from sklearn.cluster import KMeans
-from specio.fileio import MeasurementList
 
-from colour_workbench.ETC_reports.analysis import (
-    FundamentalData,
-    ReflectanceData,
-    analyse_measurements_from_file,
-)
+from colour_workbench.ETC_reports.analysis import FundamentalData, ReflectanceData
+from colour_workbench.ETC_reports.fonts import Anuphan
 
 
 def plot_chromaticity_error(data: FundamentalData, ax: Axes | None = None):
@@ -564,13 +563,17 @@ def print_statistics(
 def generate_report_page(
     color_data: FundamentalData, reflectance_data: ReflectanceData | None = None
 ):
-    scale_factor = 1
+    matplotlib.font_manager.fontManager.addfont(
+        str(importlib.resources.files(Anuphan).joinpath("Anuphan.ttf"))
+    )
+    rcParams["font.family"] = ["Anuphan", *rcParams["font.family"]]
+
     fig = plt.figure(
         "ETC LED Report",
-        figsize=np.asarray((8.5, 11)) * scale_factor,  # type: ignore
+        figsize=np.asarray((8.5, 11)),  # type: ignore
         facecolor=(1, 1, 1),
         constrained_layout=True,
-        dpi=rcParams["figure.dpi"] * scale_factor,
+        dpi=100,
     )
     outer_gs = fig.add_gridspec(2, 1, height_ratios=[1, 20])
     outer_gs.update()

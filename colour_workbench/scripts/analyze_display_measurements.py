@@ -1,5 +1,7 @@
 #!python3
 import argparse
+import os
+import platform
 from pathlib import Path
 
 import colour.utilities
@@ -16,24 +18,18 @@ colour.utilities.suppress_warnings(True)
 
 
 program_description = """
-
-Save and Open the ETC LED Evaluation Report for a particular measurement file. 
+Create the ETC LED Evaluation Report for a particular measurement file. 
 """
 parser = argparse.ArgumentParser(
     prog="ETC Display Measurements", description=program_description
 )
 
-parser.add_argument("--file", help="The input file.", required=True)
+parser.add_argument("file", help="The input file.")
 
 parser.add_argument(
-    "--out-dir",
-    help="The directory to output the PDF to. Defaults to same directory as the input file.",
-    default=None,
-)
-
-parser.add_argument(
-    "--out-file",
-    help="The output file name. Will be appended to .pdf if the file extension is excluded. Default is determined by the hashing the measurement file.",
+    "-o",
+    "--out",
+    help="The output file name. Will be appended to .pdf if the file extension is excluded. If the output is a directory, the file name will be determined by the contents of the measurements.",
     default=None,
 )
 
@@ -47,6 +43,10 @@ parser.add_argument(
     "--rf_45_45",
     help="45:-45 reflectance factor (not as percentage)",
     default=None,
+)
+
+parser.add_argument(
+    "--open", action="store_true", help="Open the file after generating."
 )
 
 args = parser.parse_args()
@@ -64,18 +64,16 @@ reflectance = (
     else None
 )
 
-# Create output file
-if args.out_dir is None:
+# Determine output file name
+if args.out is None:
     out_file_name = Path(in_file.parent)
 else:
-    out_file_name = Path(args.out_dir)
-    out_file_name.parent.mkdir(parents=True, exist_ok=True)
-    assert out_file_name.is_dir()
+    out_file_name = Path(args.out)
+    if not out_file_name.is_file() and not out_file_name.exists():
+        out_file_name.mkdir(parents=True, exist_ok=True)
 
-if args.out_file is None:
+if out_file_name.is_dir():
     out_file_name = out_file_name.joinpath(get_valid_filename(data.shortname))
-else:
-    out_file_name = out_file_name.joinpath(get_valid_filename(args.out_file))
 
 out_file_name = out_file_name.with_suffix(".pdf")
 
@@ -84,4 +82,9 @@ fig = generate_report_page(color_data=data, reflectance_data=reflectance)
 fig.savefig(str(out_file_name), facecolor=[1, 1, 1])
 
 plt.close(fig)
+if args.open:
+    if platform.system() == "Windows":
+        os.startfile(str(out_file_name))  # type: ignore
+    else:
+        os.system(f"open '{str(out_file_name)}'")
 pass
