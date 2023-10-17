@@ -4,7 +4,6 @@ from pathlib import Path
 
 import colour.utilities
 from matplotlib import pyplot as plt
-from matplotlib.pylab import f
 
 from colour_workbench.ETC_reports import (
     analyse_measurements_from_file,
