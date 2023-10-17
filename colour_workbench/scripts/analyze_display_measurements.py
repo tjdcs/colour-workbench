@@ -1,3 +1,4 @@
+#!python3
 import argparse
 from pathlib import Path
 
