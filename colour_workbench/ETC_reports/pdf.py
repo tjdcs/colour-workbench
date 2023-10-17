@@ -1,20 +1,22 @@
 from typing import Tuple
-from colour.colorimetry.datasets.illuminants.sds import SDS_ILLUMINANTS
-from colour.colorimetry.tristimulus_values import sd_to_XYZ
-from colour.models.rgb.transfer_functions import st_2084 as pq
-from colour.temperature.ohno2013 import XYZ_to_CCT_Ohno2013
+
 import matplotlib
 import numpy as np
+from colour.colorimetry.datasets.illuminants.sds import SDS_ILLUMINANTS
+from colour.colorimetry.tristimulus_values import sd_to_XYZ
 from colour.models.cie_luv import Luv_to_uv, XYZ_to_Luv, xy_to_Luv_uv
 from colour.models.rgb.datasets import RGB_COLOURSPACES
+from colour.models.rgb.transfer_functions import st_2084 as pq
 from colour.plotting.models import (
     plot_ellipses_MacAdam1942_in_chromaticity_diagram_CIE1976UCS,
 )
-from matplotlib import pyplot as plt, rcParams
+from colour.temperature.ohno2013 import XYZ_to_CCT_Ohno2013
+from matplotlib import pyplot as plt
+from matplotlib import rcParams
 from matplotlib.axes import Axes
-from matplotlib.patches import Polygon
 from matplotlib.figure import Figure
 from matplotlib.gridspec import SubplotSpec
+from matplotlib.patches import Polygon
 from sklearn.cluster import KMeans
 from specio.fileio import MeasurementList
 
@@ -523,39 +525,40 @@ def print_statistics(
         **text_settings,  # type: ignore
     )
 
-    if reflectance is not None:
-        ax.text(
-            0,
-            2,
-            f"45°:0° Reflectance:",
-            **text_settings,  # type: ignore
-        )
-        ax.text(
-            0.5,
-            2,
-            f"{reflectance.reflectance_45_0:.2f}",
-            **text_settings,  # type: ignore
-        )
-        ax.text(
-            0,
-            3,
-            f"45°:45° Reflectance:",
-            **text_settings,  # type: ignore
-        )
-        ax.text(
-            0.5,
-            3,
-            f"{reflectance.reflectance_45_45:.2f}",
-            **text_settings,  # type: ignore
-        )
+    if reflectance is None:
+        return
+    ax.text(
+        0,
+        2,
+        f"45°:0° Reflectance:",
+        **text_settings,  # type: ignore
+    )
+    ax.text(
+        0.5,
+        2,
+        f"{reflectance.reflectance_45_0 * 100:.2f}%",
+        **text_settings,  # type: ignore
+    )
+    ax.text(
+        0,
+        3,
+        f"45°:45° Reflectance:",
+        **text_settings,  # type: ignore
+    )
+    ax.text(
+        0.5,
+        3,
+        f"{reflectance.reflectance_45_45 * 100:.2f}%",
+        **text_settings,  # type: ignore
+    )
 
-        ax.text(0, 4, "Glossiness Ratio:", **text_settings)  # type: ignore
-        ax.text(
-            0.5,
-            4,
-            f"{reflectance.glossiness_ratio:.2f}",
-            **text_settings,  # type: ignore
-        )
+    ax.text(0, 4, "Glossiness Ratio:", **text_settings)  # type: ignore
+    ax.text(
+        0.5,
+        4,
+        f"{reflectance.glossiness_ratio:.2f}",
+        **text_settings,  # type: ignore
+    )
 
 
 def generate_report_page(

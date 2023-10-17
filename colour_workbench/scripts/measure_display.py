@@ -2,18 +2,16 @@
 
 import argparse
 import datetime
-import os
-import tempfile
 from pathlib import Path
 
+import numpy as np
 from specio import ColorimetryResearch
 from specio.ColorimetryResearch import CR_Definitions
-from specio.fileio import MeasurementList_Notes, save_measurements
+from specio.fileio import MeasurementList, MeasurementList_Notes, save_measurements
 from specio.spectrometer import SpecRadiometer
-from traitlets import default
 
-from colour_workbench import ETC_reports
 from colour_workbench.display_measures import DisplayMeasureController, ProgressPrinter
+from colour_workbench.ETC_reports.analysis import FundamentalData
 from colour_workbench.test_colors import PQ_TestColorsConfig, generate_colors
 from colour_workbench.tpg_controller import TPGController
 
@@ -31,7 +29,7 @@ Requires display to be in PQ / native gamut.
 This program will try to automatically discover a connected CR-300 / CR-250
 """
 parser = argparse.ArgumentParser(
-    prog="ETC Display Analyzer", description=program_description
+    prog="ETC Display Measurements", description=program_description
 )
 
 parser.add_argument(
@@ -180,6 +178,18 @@ save_path.mkdir(parents=True, exist_ok=True)
 measurements = dmc.run_measurement_cycle(warmup_time=args.warmup * 60)
 
 tpg.send_color((0, 0, 0))
+
+try:
+    data_analysis = FundamentalData(
+        MeasurementList(
+            test_colors=test_colors.colors,
+            order=test_colors.order.tolist(),
+            measurements=np.asarray(measurements),
+        )
+    )
+    print(data_analysis)
+except:
+    pass
 
 save_measurements(
     str(save_path.resolve()),
