@@ -479,8 +479,8 @@ def print_statistics(
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot()
-    ax.set_ylim(5, 0),
-    ax.set_xlim(0, 1),
+    ax.set_ylim(5, 0)
+    ax.set_xlim(0, 1)
     ax.set_facecolor("None")
     ax.set_axis_off()
 
