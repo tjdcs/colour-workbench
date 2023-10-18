@@ -487,63 +487,57 @@ name = "colour-datasets"
 version = "0.2.2"
 description = "Colour science datasets for use with Colour"
 optional = false
-python-versions = ">= 3.9, < 3.12"
-files = []
-develop = true
+python-versions = ">=3.9,<3.12"
+files = [
+    {file = "colour_datasets-0.2.2-py3-none-any.whl", hash = "sha256:b6c07ec34771eaca8a0f1ba925d63679348b0a1bdedf34a9f6c1e6f844d3461c"},
+    {file = "colour_datasets-0.2.2.tar.gz", hash = "sha256:58565be08c1dad45b3a81d518579cc577a7f084e372851d3f3b4ebfd9376fefc"},
+]
 
 [package.dependencies]
 cachetools = "*"
-colour-science = ">= 0.4.3"
-imageio = ">= 2, < 3"
-numpy = ">= 1.22, < 2"
-opencv-python = ">= 4, < 5"
-scipy = ">= 1.8, < 2"
+colour-science = ">=0.4.3"
+imageio = ">=2,<3"
+numpy = ">=1.22,<2"
+opencv-python = ">=4,<5"
+scipy = ">=1.8,<2"
 tqdm = "*"
-typing-extensions = ">= 4, < 5"
-xlrd = ">= 1.2, < 2"
-
-[package.source]
-type = "directory"
-url = "submodules/colour-datasets"
+typing-extensions = ">=4,<5"
+xlrd = ">=1.2,<2"
 
 [[package]]
 name = "colour-science"
 version = "0.4.3"
 description = "Colour Science for Python"
 optional = false
-python-versions = ">= 3.9, < 3.12"
-files = []
-develop = true
+python-versions = ">=3.9,<3.12"
+files = [
+    {file = "colour_science-0.4.3-py3-none-any.whl", hash = "sha256:56395769e4e76556b0680862db93da683b869215e264cd2b0091c70fbf71f5ac"},
+    {file = "colour_science-0.4.3.tar.gz", hash = "sha256:d7e8b97a6dddb205bddff2175b0fe97286fdd2412594a0466bcf5943f2abfe07"},
+]
 
 [package.dependencies]
-imageio = ">= 2, < 3"
-numpy = ">= 1.22, < 2"
-scipy = ">= 1.8, < 2"
-typing-extensions = ">= 4, < 5"
-
-[package.source]
-type = "directory"
-url = "submodules/colour-science"
+imageio = ">=2,<3"
+numpy = ">=1.22,<2"
+scipy = ">=1.8,<2"
+typing-extensions = ">=4,<5"
 
 [[package]]
 name = "colour-specio"
 version = "0.2.11"
 description = "Instrument control for spectrometers"
 optional = false
-python-versions = "^3.10,<3.12"
-files = []
-develop = true
+python-versions = ">=3.10,<3.12"
+files = [
+    {file = "colour_specio-0.2.11-py3-none-any.whl", hash = "sha256:dade622fdc4f2169d6f32a5001a0884ec3613c11928ed39418f94978d7ddf7d0"},
+    {file = "colour_specio-0.2.11.tar.gz", hash = "sha256:8d4ed524b8dede95a67d410713ef79abf18ad4e96c6d15fb6d06f8c1b68e1d0a"},
+]
 
 [package.dependencies]
-aenum = "^3.1.11"
-colour-science = "^0.4.2"
-numpy = "^1.23.1"
-protobuf = "^4.21.8"
-pyserial = "^3.5"
-
-[package.source]
-type = "directory"
-url = "submodules/colour-specio"
+aenum = ">=3.1.11,<4.0.0"
+colour-science = ">=0.4.2,<0.5.0"
+numpy = ">=1.23.1,<2.0.0"
+protobuf = ">=4.21.8,<5.0.0"
+pyserial = ">=3.5,<4.0"
 
 [[package]]
 name = "comm"
@@ -3471,4 +3465,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "f783a670e0f6408164a6bab8249ff6f17c56a7c5e7c5d9ff75fe6c746b6ba4b3"
+content-hash = "472b2325859e08c70941a9b2cb76c333abbebc0717a2ec7dd2de5cee2a9bc702"
