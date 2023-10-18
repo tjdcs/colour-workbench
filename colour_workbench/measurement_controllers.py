@@ -133,7 +133,7 @@ class DisplayMeasureController:
         while now() - t < datetime.timedelta(seconds=duration):
             c = self._rng.random(size=(3))
             self.tpg.send_color(c * 1023)
-            time.sleep(1 / 12)  # ~12 FPS Maximum
+            time.sleep(3 / 24)  # ~12 FPS Maximum
 
     class MeasurementError(Exception):
         """Raised if a measurement fails after multiple attempts"""
@@ -169,7 +169,7 @@ class DisplayMeasureController:
             try:
                 self.generate_random_colors()
                 self.tpg.send_color(test_color)
-                time.sleep(1 / 24)  # One "slow" frame
+                time.sleep(2 / 24)  # One "slow" frame
 
                 measurement = self.cr.measure()
             except Exception as last_exception:
