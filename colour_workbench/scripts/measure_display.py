@@ -9,15 +9,22 @@ def main():
     import numpy as np
     from specio import ColorimetryResearch
     from specio.ColorimetryResearch import CR_Definitions
-    from specio.fileio import MeasurementList, MeasurementList_Notes, save_measurements
+    from specio.fileio import (
+        MeasurementList,
+        MeasurementList_Notes,
+        save_measurements,
+    )
     from specio.spectrometer import SpecRadiometer
 
-    from colour_workbench.ETC_reports.analysis import FundamentalData
+    from colour_workbench.ETC_reports.analysis import ColourPrecisionAnalysis
     from colour_workbench.measurement_controllers import (
         DisplayMeasureController,
         ProgressPrinter,
     )
-    from colour_workbench.test_colors import PQ_TestColorsConfig, generate_colors
+    from colour_workbench.test_colors import (
+        PQ_TestColorsConfig,
+        generate_colors,
+    )
     from colour_workbench.tpg_controller import TPGController
 
     program_description = """Analyze a display for colorimetric linearity and accuracy. This program does 
@@ -151,7 +158,19 @@ def main():
     parser.add_argument(
         "--save-file",
         help=f"Name of save file. Default = 'DisplayMeasurements_YYMMDD_HHMM",
-        default=datetime.datetime.now().strftime("Display_Measurements_%y%m%d_%H%M"),
+        default=datetime.datetime.now().strftime(
+            "Display_Measurements_%y%m%d_%H%M"
+        ),
+        required=False,
+        type=str,
+    )
+
+    parser.add_argument(
+        "--tile-name",
+        help=f"A name / metadata string that will be embedded in the file. Used later to determine the header of the ETC Calibration Precision Report",
+        default=datetime.datetime.now().strftime(
+            "Tile Measurements %y-%m-%d %H:%M"
+        ),
         required=False,
         type=str,
     )
@@ -180,7 +199,10 @@ def main():
         )
 
     dmc = DisplayMeasureController(
-        tpg=tpg, cr=cr, color_list=test_colors, progress_callbacks=[ProgressPrinter()]
+        tpg=tpg,
+        cr=cr,
+        color_list=test_colors,
+        progress_callbacks=[ProgressPrinter()],
     )
     dmc.random_colors_duration = args.stabilization_time
 
@@ -192,7 +214,7 @@ def main():
     tpg.send_color((0, 0, 0))
 
     try:
-        data_analysis = FundamentalData(
+        data_analysis = ColourPrecisionAnalysis(
             MeasurementList(
                 test_colors=test_colors.colors,
                 order=test_colors.order.tolist(),
@@ -208,7 +230,7 @@ def main():
         measurements=measurements,
         order=test_colors.order.tolist(),
         testColors=test_colors.colors,
-        notes=MeasurementList_Notes(),
+        notes=MeasurementList_Notes(notes=args.tile_name),
     )
     pass
 

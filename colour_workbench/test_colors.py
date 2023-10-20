@@ -1,12 +1,9 @@
 from dataclasses import dataclass
-from typing import Tuple, cast
-from colour.hints import NDArrayInt
 
 import numpy as np
 import numpy.typing as npt
-from colour.models.rgb.transfer_functions import st_2084 as pq
-from xxhash import xxh3_64_digest, xxh3_64_hexdigest
 import xxhash
+from colour.models.rgb.transfer_functions import st_2084 as pq
 
 
 @dataclass
@@ -84,7 +81,12 @@ class PQ_TestColorsConfig(TestColorsConfig):
         )
 
         self.first_light_data_value = int(
-            (pq.eotf_inverse_ST2084(self.first_light) * self.quantized_range // 1) + 1
+            (
+                pq.eotf_inverse_ST2084(self.first_light)
+                * self.quantized_range
+                // 1
+            )
+            + 1
         )
 
     def __hash__(self):
@@ -131,24 +133,34 @@ def generate_colors(
         sort key may be helpful for some types of visualization.
     """
     ramp = np.linspace(
-        config.first_light_data_value, config.max_channel_value, config.ramp_samples
+        config.first_light_data_value,
+        config.max_channel_value,
+        config.ramp_samples,
     )
-    ramp = np.array((0, *ramp, config.max_channel_value + 1, config.quantized_range))
+    ramp = np.array(
+        (0, *ramp, config.max_channel_value + 1, config.quantized_range)
+    )
     ramp = ramp.reshape((-1, 1))
 
     ramps = np.zeros((ramp.shape[0] * 4, 3))
     for idx in range(3):
         ramps[ramp.shape[0] * idx : ramp.shape[0] * (idx + 1), idx] = ramp.T
     idx = 3
-    ramps[ramp.shape[0] * idx : ramp.shape[0] * (idx + 1), :] = np.tile(ramp, (1, 3))
+    ramps[ramp.shape[0] * idx : ramp.shape[0] * (idx + 1), :] = np.tile(
+        ramp, (1, 3)
+    )
 
     ramps = np.tile(ramps, (config.ramp_repeats, 1))
 
     mesh_ramp = np.linspace(
-        config.first_light_data_value, config.max_channel_value, config.mesh_size
+        config.first_light_data_value,
+        config.max_channel_value,
+        config.mesh_size,
     )
     mesh = np.meshgrid(mesh_ramp, mesh_ramp, mesh_ramp)
-    mesh = np.asarray([mesh[0].flatten(), mesh[1].flatten(), mesh[2].flatten()]).T
+    mesh = np.asarray(
+        [mesh[0].flatten(), mesh[1].flatten(), mesh[2].flatten()]
+    ).T
 
     blacks = np.zeros((config.blacks, 3))
     whites = np.ones((config.whites, 3)) * config.max_channel_value
@@ -158,7 +170,10 @@ def generate_colors(
     rng = np.random.default_rng(random_seed)
 
     random = rng.integers(
-        low=0, high=config.quantized_range, endpoint=True, size=(config.random, 3)
+        low=0,
+        high=config.quantized_range,
+        endpoint=True,
+        size=(config.random, 3),
     )
 
     colors = np.concatenate((ramps, mesh, blacks, whites, random), axis=0) // 1

@@ -10,8 +10,6 @@ __all__ = ["get_logger", "get_valid_filename"]
 class SuspiciousFileOperation(Exception):
     """Generated when a user does something suspicious with file names"""
 
-    pass
-
 
 def get_valid_filename(name: str) -> str:
     """Clean / validate filename string
@@ -33,8 +31,11 @@ def get_valid_filename(name: str) -> str:
     """
     s = str(name).strip().replace(" ", "_")
     s = re.sub(r"(?u)[^-\w.]", "", s)
+    s = re.sub(r"_+-+_+", "__", s)
     if s in {"", ".", ".."}:
-        raise SuspiciousFileOperation("Could not derive file name from '%s'" % name)
+        raise SuspiciousFileOperation(
+            f"Could not derive file name from '{name}'"
+        )
     return s
 
 

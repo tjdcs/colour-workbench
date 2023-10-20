@@ -9,8 +9,10 @@ from textwrap import dedent
 
 import numpy as np
 import numpy.typing as npt
-import xxhash
-from colour.colorimetry.spectrum import MultiSpectralDistributions, SpectralDistribution
+from colour.colorimetry.spectrum import (
+    MultiSpectralDistributions,
+    SpectralDistribution,
+)
 from colour.colorimetry.tristimulus_values import sd_to_XYZ
 from colour.difference.delta_e import delta_E_CIE2000
 from colour.models.cie_lab import XYZ_to_Lab
@@ -21,8 +23,11 @@ from colour.models.rgb.ictcp import XYZ_to_ICtCp
 from colour.models.rgb.transfer_functions import st_2084 as pq
 from colour.plotting.common import XYZ_to_plotting_colourspace
 from colour.temperature.ohno2013 import XYZ_to_CCT_Ohno2013
-from matplotlib import pyplot as plt
-from specio.fileio import MeasurementList, MeasurementList_Notes, load_measurements
+from specio.fileio import (
+    MeasurementList,
+    MeasurementList_Notes,
+    load_measurements,
+)
 
 
 @dataclass
@@ -41,7 +46,7 @@ class ReflectanceData:
         return self.reflectance_45_45 / self.reflectance_45_0
 
 
-class FundamentalData:
+class ColourPrecisionAnalysis:
     @property
     def _snr_mask(self):
         snr = 10 * np.log10(
@@ -58,13 +63,19 @@ class FundamentalData:
         t = np.all(
             (
                 ~np.any(
-                    np.isinf([m.spd.values for m in self._data.measurements]), axis=1
+                    np.isinf([m.spd.values for m in self._data.measurements]),
+                    axis=1,
                 ),
                 ~np.any(
-                    np.isnan([m.spd.values for m in self._data.measurements]), axis=1
+                    np.isnan([m.spd.values for m in self._data.measurements]),
+                    axis=1,
                 ),
-                ~np.any(np.isnan([m.XYZ for m in self._data.measurements]), axis=1),
-                ~np.any(np.isinf([m.XYZ for m in self._data.measurements]), axis=1),
+                ~np.any(
+                    np.isnan([m.XYZ for m in self._data.measurements]), axis=1
+                ),
+                ~np.any(
+                    np.isinf([m.XYZ for m in self._data.measurements]), axis=1
+                ),
             ),
             axis=0,
         )
@@ -84,14 +95,18 @@ class FundamentalData:
         tmp["measurements"] = measurements = self._data.measurements[mask]
         spd_shape = measurements[0].spd.shape
 
-        tmp["values"] = np.transpose(np.array([m.spd.values for m in measurements]))
+        tmp["values"] = np.transpose(
+            np.array([m.spd.values for m in measurements])
+        )
         tmp["spectral_deviation"] = np.std(tmp["values"], axis=1)
 
         tmp["spd"] = np.mean(tmp["values"], axis=1)
         tmp["spd"] = savgol_filter(tmp["spd"], 5, 2, mode="nearest")
         tmp["spd"] = SpectralDistribution(tmp["spd"], domain=spd_shape)
 
-        tmp["XYZ"] = sd_to_XYZ(SpectralDistribution(tmp["spd"], spd_shape), k=683)
+        tmp["XYZ"] = sd_to_XYZ(
+            SpectralDistribution(tmp["spd"], spd_shape), k=683
+        )
         tmp["power"] = np.sum(tmp["spd"].values)
         return self._black
 
@@ -101,12 +116,19 @@ class FundamentalData:
             return self._pm
 
         color_masks = []
-        color_masks.append(np.all(self._data.test_colors[:, (1, 2)] == 0, axis=1))
-        color_masks.append(np.all(self._data.test_colors[:, (0, 2)] == 0, axis=1))
-        color_masks.append(np.all(self._data.test_colors[:, (0, 1)] == 0, axis=1))
+        color_masks.append(
+            np.all(self._data.test_colors[:, (1, 2)] == 0, axis=1)
+        )
+        color_masks.append(
+            np.all(self._data.test_colors[:, (0, 2)] == 0, axis=1)
+        )
+        color_masks.append(
+            np.all(self._data.test_colors[:, (0, 1)] == 0, axis=1)
+        )
         color_masks.append(
             np.all(
-                self._data.test_colors[:, (1, 2)].T == self._data.test_colors[:, (0)],
+                self._data.test_colors[:, (0)]
+                == self._data.test_colors[:, (1, 2)].T,
                 axis=0,
             )
         )
@@ -115,7 +137,9 @@ class FundamentalData:
 
         xy = np.zeros((4, 2))
         for idx, m in enumerate(color_masks):
-            color_measurements = self._data.measurements[m & self._analysis_mask]
+            color_measurements = self._data.measurements[
+                m & self._analysis_mask
+            ]
             color_XYZ = [t.XYZ for t in color_measurements] - self.black["XYZ"]
             xys = XYZ_to_xy(color_XYZ)
 
@@ -123,7 +147,7 @@ class FundamentalData:
                 # Find mean chromaticity without being influenced by outliers
                 cov = EllipticEnvelope().fit(xys)
                 xy[idx, :] = cov.location_
-            except ValueError as e:
+            except ValueError:
                 # Covariance fit failed, probably because the data is well
                 # clustered, traditional mean can be used instead.
                 xy[idx, :] = np.mean(xys, axis=0)
@@ -139,7 +163,8 @@ class FundamentalData:
 
         grey = self._grey = {}
         grey_mask = np.all(
-            self._data.test_colors[:, (1, 2)].T == self._data.test_colors[:, (0)],
+            self._data.test_colors[:, (0)]
+            == self._data.test_colors[:, (1, 2)].T,
             axis=0,
         )
         grey_mask = grey_mask & self._analysis_mask
@@ -182,10 +207,13 @@ class FundamentalData:
 
         white["xyz"] = self.primary_matrix.dot([1, 1, 1])
 
-        single_color_idx = np.all(self._data.test_colors == [1023, 1023, 1023], axis=1)
+        single_color_idx = np.all(
+            self._data.test_colors == [1023, 1023, 1023], axis=1
+        )
         single_color_measurements = self._data.measurements[single_color_idx]
         white["peak"] = np.mean(
-            [m.XYZ - self.black["XYZ"] for m in single_color_measurements], axis=0
+            [m.XYZ - self.black["XYZ"] for m in single_color_measurements],
+            axis=0,
         )
         white["nits_quantized"] = pq.eotf_ST2084(
             np.round(pq.eotf_inverse_ST2084(white["peak"][1]) * 1023) / 1023
@@ -206,7 +234,9 @@ class FundamentalData:
         if hasattr(self, "_test_colors_linear"):
             return self._test_colors_linear
 
-        tmp = self._test_colors_linear = pq.eotf_ST2084(self.test_colors.T / 1023)
+        tmp = self._test_colors_linear = pq.eotf_ST2084(
+            self.test_colors.T / 1023
+        )
         clipping_mask = tmp > self.white["nits_quantized"]
         tmp[clipping_mask] = self.white["nits_quantized"]
         return self._test_colors_linear
@@ -247,14 +277,17 @@ class FundamentalData:
             return self._err
         norm = partial(np.linalg.norm, axis=1)
         err = {}
-        err["XYZ"] = norm(self.measured_colors["XYZ"] - self.expected_colors["XYZ"])
+        err["XYZ"] = norm(
+            self.measured_colors["XYZ"] - self.expected_colors["XYZ"]
+        )
 
         err["ICtCp"] = 720 * norm(
             (self.measured_colors["ICtCp"] - self.expected_colors["ICtCp"])
             * (1, 0.5, 1)
         )
         err["dI"] = 720 * norm(
-            (self.measured_colors["ICtCp"] - self.expected_colors["ICtCp"]) * (1, 0, 0)
+            (self.measured_colors["ICtCp"] - self.expected_colors["ICtCp"])
+            * (1, 0, 0)
         )
         err["dChromatic"] = 720 * norm(
             (self.measured_colors["ICtCp"] - self.expected_colors["ICtCp"])
@@ -272,14 +305,19 @@ class FundamentalData:
     def metadata(self) -> MeasurementList_Notes:
         return self._data.metadata
 
+    @metadata.setter
+    def metadata(self, new_data: MeasurementList_Notes):
+        self._data.metadata = new_data
+
     @property
     def shortname(self) -> str:
-        if self._shortname is None:
-            if self.metadata.notes is None:
-                spds = MultiSpectralDistributions([m.spd for m in self.measurements])
-                return xxhash.xxh32_hexdigest(np.ascontiguousarray(spds.values).data)
-            return self.metadata.notes
-        return self._shortname
+        if self._shortname is not None:
+            return self._shortname
+
+        if self.metadata.notes is None or self.metadata.notes == "":
+            return self._data.shortname
+
+        return self.metadata.notes
 
     @shortname.setter
     def shortname(self, name: str | None):
@@ -317,12 +355,5 @@ class FundamentalData:
 def analyse_measurements_from_file(file: str):
     measurements = load_measurements(file)
 
-    fundamentalData = FundamentalData(measurements)
+    fundamentalData = ColourPrecisionAnalysis(measurements)
     return fundamentalData
-    pass
-
-
-if __name__ == "__main__":
-    file = "/Users/tucker/Dev/ETC_Jan/data/measurements/F_BP2v2_Brompton.csmf"
-    data = analyse_measurements_from_file(file)
-    print(data)

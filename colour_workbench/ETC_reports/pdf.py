@@ -1,6 +1,7 @@
+"""PDF generation for Entertainment Technology Center LED Eval Report
+"""
 import importlib
 import importlib.resources
-from typing import Tuple
 
 import matplotlib
 import matplotlib.font_manager
@@ -22,14 +23,21 @@ from matplotlib.gridspec import SubplotSpec
 from matplotlib.patches import Polygon
 from sklearn.cluster import KMeans
 
-from colour_workbench.ETC_reports.analysis import FundamentalData, ReflectanceData
+from colour_workbench.ETC_reports.analysis import (
+    ColourPrecisionAnalysis,
+    ReflectanceData,
+)
 from colour_workbench.ETC_reports.fonts import Anuphan
 
 
-def plot_chromaticity_error(data: FundamentalData, ax: Axes | None = None):
+def plot_chromaticity_error(
+    data: ColourPrecisionAnalysis, ax: Axes | None = None
+):
     if ax is None:
         fig, ax = plot_ellipses_MacAdam1942_in_chromaticity_diagram_CIE1976UCS(
-            standalone=False, diagram_opacity=0.3, title="CIE u'v' (1976) Average Error"
+            standalone=False,
+            diagram_opacity=0.3,
+            title="CIE u'v' (1976) Average Error",
         )
     else:
         plot_ellipses_MacAdam1942_in_chromaticity_diagram_CIE1976UCS(
@@ -80,7 +88,9 @@ def plot_chromaticity_error(data: FundamentalData, ax: Axes | None = None):
 
     Luv_to_uv(XYZ_to_Luv(data.primary_matrix.T))
 
-    klusters = KMeans(n_clusters=14, n_init=20).fit(data.measured_colors["uvp"])
+    klusters = KMeans(n_clusters=14, n_init=20).fit(
+        data.measured_colors["uvp"]
+    )
     normalize = matplotlib.colors.Normalize(0, 13)  # type: ignore
     colors = matplotlib.cm.nipy_spectral(normalize(klusters.labels_))  # type: ignore
     dist = data.measured_colors["uvp"] - data.expected_colors["uvp"]
@@ -120,7 +130,7 @@ def plot_chromaticity_error(data: FundamentalData, ax: Axes | None = None):
     )
 
 
-def plot_eotf_accuracy(data: FundamentalData, ax: Axes | None = None):
+def plot_eotf_accuracy(data: ColourPrecisionAnalysis, ax: Axes | None = None):
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -138,7 +148,9 @@ def plot_eotf_accuracy(data: FundamentalData, ax: Axes | None = None):
     ax.set_ylim(bottom=0.1, top=10000)
 
     ax.set_yticks(2.0 ** np.arange(-3, 14))
-    ax.set_xticks((2.0 ** np.arange(6, 11)) - 1, ["63", "127", "255", "511", "1023"])
+    ax.set_xticks(
+        (2.0 ** np.arange(6, 11)) - 1, ["63", "127", "255", "511", "1023"]
+    )
 
     x_1000nits = pq.eotf_inverse_ST2084(1000) * 1023
     ax.plot([x_1000nits, x_1000nits], [0, 1000], color="#5a9c9e")
@@ -153,7 +165,9 @@ def plot_eotf_accuracy(data: FundamentalData, ax: Axes | None = None):
     )
 
     ax.plot(
-        np.arange(0, 1023), pq.eotf_ST2084(np.arange(0, 1023) / 1023), color=[1, 0, 0]
+        np.arange(0, 1023),
+        pq.eotf_ST2084(np.arange(0, 1023) / 1023),
+        color=[1, 0, 0],
     )
     ax.set_title("PQ EOTF Performance")
     ax.set_xlabel("10-bit Code Value (Log)")
@@ -178,7 +192,8 @@ def plot_eotf_accuracy(data: FundamentalData, ax: Axes | None = None):
 
 
 def plot_wp_accuracy(
-    data: FundamentalData, fig_spec: Tuple[Figure, SubplotSpec] | None = None
+    data: ColourPrecisionAnalysis,
+    fig_spec: tuple[Figure, SubplotSpec] | None = None,
 ):
     if fig_spec is None:
         fig, axs = plt.subplots(2, 1)
@@ -260,14 +275,15 @@ def plot_wp_accuracy(
         arrow_size = abs(np.diff(ax.get_ylim()))[0] * 0.15
         # fmt: off
         mask = (
-            (cct_list[:, 0] > ax.get_ylim()[1]).astype(np.int32) 
+            (cct_list[:, 0] > ax.get_ylim()[1]).astype(np.int32)
             - (cct_list[:, 0] < ax.get_ylim()[0]).astype(np.int32)
         )
         # fmt: on
         for idx in np.where(mask != 0)[0]:
             ax.arrow(
                 x=data.grey["uniques"][0][idx],
-                y=ax.get_ylim()[int(mask[idx] == 1)] - mask[idx] * (arrow_size + 0),
+                y=ax.get_ylim()[int(mask[idx] == 1)]
+                - mask[idx] * (arrow_size + 0),
                 dx=0,
                 dy=arrow_size * mask[idx],
                 width=7,
@@ -313,7 +329,7 @@ def plot_wp_accuracy(
         )
         # fmt: off
         mask = (
-            (cct_list[:, 1] > ax.get_ylim()[1]).astype(np.int32) 
+            (cct_list[:, 1] > ax.get_ylim()[1]).astype(np.int32)
             - (cct_list[:, 1] < ax.get_ylim()[0]).astype(np.int32)
         )
         # fmt: on
@@ -321,7 +337,8 @@ def plot_wp_accuracy(
         for idx in np.where(mask != 0)[0]:
             ax.arrow(
                 x=data.grey["uniques"][0][idx],
-                y=ax.get_ylim()[int(mask[idx] == 1)] - mask[idx] * (arrow_size + 0),
+                y=ax.get_ylim()[int(mask[idx] == 1)]
+                - mask[idx] * (arrow_size + 0),
                 dx=0,
                 dy=arrow_size * mask[idx],
                 width=7,
@@ -342,7 +359,9 @@ def plot_wp_accuracy(
     plot_wp_duv(axs[1])
 
 
-def plot_brightness_errors(data: FundamentalData, ax: Axes | None = None):
+def plot_brightness_errors(
+    data: ColourPrecisionAnalysis, ax: Axes | None = None
+):
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -363,14 +382,17 @@ def plot_brightness_errors(data: FundamentalData, ax: Axes | None = None):
     )
     ax.set_yscale("symlog", base=2)
     ax.set_ylim(-(2**5), 2**5)
-    ax.set_yticks((([[2, 2]] ** np.arange(0, 6).reshape(-1, 1)) * [1, -1]).flatten())
+    ax.set_yticks(
+        (([[2, 2]] ** np.arange(0, 6).reshape(-1, 1)) * [1, -1]).flatten()
+    )
     ax.set_xlim(pq.eotf_inverse_ST2084(0.1), 1)  # type: ignore
 
     xticks = pq.eotf_inverse_ST2084(10.0 ** np.arange(-1, 5))
     xtick_labels = ["0.1"] + [f"{(10.0 ** m):.0f}" for m in np.arange(0, 5)]
     xticks_minor = pq.eotf_inverse_ST2084(
         (
-            np.arange(2, 10).reshape(1, -1) * [10.0] ** np.arange(-1, 4).reshape(-1, 1)
+            np.arange(2, 10).reshape(1, -1)
+            * [10.0] ** np.arange(-1, 4).reshape(-1, 1)
         ).flatten()
     )
 
@@ -380,7 +402,9 @@ def plot_brightness_errors(data: FundamentalData, ax: Axes | None = None):
     ax.set_xticks(xticks, xtick_labels)
     ax.set_xticks(xticks_minor, minor=True)
 
-    ax.plot([x_max_nits, x_max_nits], ax.get_ylim(), zorder=-1, color="#6f5481")
+    ax.plot(
+        [x_max_nits, x_max_nits], ax.get_ylim(), zorder=-1, color="#6f5481"
+    )
     ax.text(
         x_max_nits - 0.02,  # type: ignore
         ax.get_ylim()[0] + 1.5**4,
@@ -403,7 +427,11 @@ def plot_brightness_errors(data: FundamentalData, ax: Axes | None = None):
 def plot_y_tolerance_bg(ax, tol_bounds, colors, aspect_multiplier=1):
     from scipy.interpolate import Akima1DInterpolator
 
-    color_dict = {"r": [1.0, 0.85, 0.8], "y": [1.0, 1.0, 0.8], "g": [0.8, 1.0, 0.8]}
+    color_dict = {
+        "r": [1.0, 0.85, 0.8],
+        "y": [1.0, 1.0, 0.8],
+        "g": [0.8, 1.0, 0.8],
+    }
     bg_image = Akima1DInterpolator(
         tol_bounds,
         [color_dict[c] for c in colors],
@@ -418,7 +446,9 @@ def plot_y_tolerance_bg(ax, tol_bounds, colors, aspect_multiplier=1):
     )
 
 
-def plot_chromatic_error(data: FundamentalData, ax: Axes | None = None):
+def plot_chromatic_error(
+    data: ColourPrecisionAnalysis, ax: Axes | None = None
+):
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -446,7 +476,8 @@ def plot_chromatic_error(data: FundamentalData, ax: Axes | None = None):
     xtick_labels = ["0.1"] + [f"{(10.0 ** m):.0f}" for m in np.arange(0, 5)]
     xticks_minor = pq.eotf_inverse_ST2084(
         (
-            np.arange(2, 10).reshape(1, -1) * [10.0] ** np.arange(-1, 4).reshape(-1, 1)
+            np.arange(2, 10).reshape(1, -1)
+            * [10.0] ** np.arange(-1, 4).reshape(-1, 1)
         ).flatten()
     )
     x_max_nits = pq.eotf_inverse_ST2084(data.white["nits_quantized"])
@@ -459,20 +490,21 @@ def plot_chromatic_error(data: FundamentalData, ax: Axes | None = None):
     ax.set_title("Chromatic Error (∆ICtCp)")
 
     plot_y_tolerance_bg(
-        ax, tol_bounds=[0, 1, 2, 2**3, 2**5], colors=["g", "g", "y", "r", "r"]
+        ax,
+        tol_bounds=[0, 1, 2, 2**3, 2**5],
+        colors=["g", "g", "y", "r", "r"],
     )
 
 
-def plot_report_header(ax: Axes, data: FundamentalData):
+def plot_report_header(ax: Axes, data: ColourPrecisionAnalysis):
     ax.set_facecolor("pink")
     ax.set_ylim(0, 1)
     ax.set_axis_off()
     ax.text(0, 0, f"{data.shortname}", va="bottom", fontsize=16)
-    pass
 
 
 def print_statistics(
-    data: FundamentalData,
+    data: ColourPrecisionAnalysis,
     reflectance: ReflectanceData | None = None,
     ax: Axes | None = None,
 ):
@@ -489,7 +521,7 @@ def print_statistics(
     ax.text(
         0,
         0,
-        f"Mean ∆E 2000:",
+        "Mean ∆E 2000:",
         **text_settings,  # type: ignore
     )
     ax.text(
@@ -508,7 +540,7 @@ def print_statistics(
     ax.text(
         0,
         1,
-        f"Mean ∆ICtCp:",
+        "Mean ∆ICtCp:",
         **text_settings,  # type: ignore
     )
     ax.text(
@@ -529,7 +561,7 @@ def print_statistics(
     ax.text(
         0,
         2,
-        f"45°:0° Reflectance:",
+        "45°:0° Reflectance:",
         **text_settings,  # type: ignore
     )
     ax.text(
@@ -541,7 +573,7 @@ def print_statistics(
     ax.text(
         0,
         3,
-        f"45°:45° Reflectance:",
+        "45°:45° Reflectance:",
         **text_settings,  # type: ignore
     )
     ax.text(
@@ -561,7 +593,8 @@ def print_statistics(
 
 
 def generate_report_page(
-    color_data: FundamentalData, reflectance_data: ReflectanceData | None = None
+    color_data: ColourPrecisionAnalysis,
+    reflectance_data: ReflectanceData | None = None,
 ):
     matplotlib.font_manager.fontManager.addfont(
         str(importlib.resources.files(Anuphan).joinpath("Anuphan.ttf"))
@@ -584,7 +617,9 @@ def generate_report_page(
     left_col_gs = columns_gs[0].subgridspec(
         4, 1, height_ratios=[0.3, 0.8125 + 0.21625, 0.6, 0.1]
     )
-    right_col_gs = columns_gs[1].subgridspec(4, 1, height_ratios=[1, 1, 0.35, 0.5])
+    right_col_gs = columns_gs[1].subgridspec(
+        4, 1, height_ratios=[1, 1, 0.35, 0.5]
+    )
 
     ######################################
 
@@ -592,7 +627,6 @@ def generate_report_page(
 
     ax = fig.add_subplot(right_col_gs[1])
     plot_brightness_errors(color_data, ax)
-    pass
     ax = fig.add_subplot(right_col_gs[2])
     plot_chromatic_error(color_data, ax)
 

@@ -1,8 +1,9 @@
 import datetime
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Callable, Iterable, cast
+from typing import Callable, cast
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -10,9 +11,7 @@ from specio.measurement import Measurement
 from specio.spectrometer import SpecRadiometer
 
 from colour_workbench.test_colors import (
-    PQ_TestColorsConfig,
     TestColors,
-    generate_colors,
 )
 from colour_workbench.tpg_controller import TPGController
 
@@ -46,14 +45,14 @@ class ProgressPrinter:
             + "Last Result: "
             + np.array2string(
                 progress.last_measurement.XYZ,
-                formatter={"float_kind": lambda x: "%.3f" % x},
+                formatter={"float_kind": lambda x: f"{x:.3f}"},
             )
         )
         if len(self.durations) > 1:
             mean_duration = np.mean(self.durations)  # type: ignore
             progressStr = (
                 progressStr
-                + f"\n\tETA: "
+                + "\n\tETA: "
                 + (
                     (
                         (1 - progress.progress_factor)
@@ -98,7 +97,7 @@ class DisplayMeasureController:
     def remove_progress_callback(self, func: ProgressCallback) -> None:
         try:
             self._progress_callbacks.remove(func)
-        except KeyError as e:
+        except KeyError:
             # func was not in _progress_callbacks set
             pass
 
@@ -138,8 +137,6 @@ class DisplayMeasureController:
     class MeasurementError(Exception):
         """Raised if a measurement fails after multiple attempts"""
 
-        pass
-
     def _get_measurement(self, test_color: ArrayLike, n=10) -> Measurement:
         """Trigger a robust measurement of a specific test color from the
         spectrometer.
@@ -172,7 +169,7 @@ class DisplayMeasureController:
                 time.sleep(2 / 24)  # One "slow" frame
 
                 measurement = self.cr.measure()
-            except Exception as last_exception:
+            except Exception:
                 continue
             break
         if measurement is None:
