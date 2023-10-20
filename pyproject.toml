@@ -71,7 +71,10 @@ use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 88
 split_on_trailing_comma = true
-skip_glob = ["colour/**/__init__.py"]
+skip_glob = [
+    "submodules/colour-science/colour/**/__init__.py",
+    "submodules/colour-datasets",
+]
 
 [tool.ruff]
 target-version = "py39"
