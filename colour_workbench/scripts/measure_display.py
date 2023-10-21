@@ -27,11 +27,11 @@ def main():
     )
     from colour_workbench.tpg_controller import TPGController
 
-    program_description = """Analyze a display for colorimetric linearity and accuracy. This program does 
-    not specifically evaluate a display's adherence to a particular color standard 
-    but rather it's color-accuracy relative to the native color space. 
+    program_description = """Analyze a display for colorimetric linearity and accuracy. This program does
+    not specifically evaluate a display's adherence to a particular color standard
+    but rather it's color-accuracy relative to the native color space.
 
-    If the display performs well on these metrics, then simple 3x3 transformations 
+    If the display performs well on these metrics, then simple 3x3 transformations
     can reasonably correct for other types of observers such as cameras. It also
     indicates a level of consistent control for the display electronics, accounting
     for small electrical effects that can create large accuracy issues.
@@ -157,7 +157,7 @@ def main():
 
     parser.add_argument(
         "--save-file",
-        help=f"Name of save file. Default = 'DisplayMeasurements_YYMMDD_HHMM",
+        help="Name of save file. Default = 'DisplayMeasurements_YYMMDD_HHMM",
         default=datetime.datetime.now().strftime(
             "Display_Measurements_%y%m%d_%H%M"
         ),
@@ -167,7 +167,7 @@ def main():
 
     parser.add_argument(
         "--tile-name",
-        help=f"A name / metadata string that will be embedded in the file. Used later to determine the header of the ETC Calibration Precision Report",
+        help="A name / metadata string that will be embedded in the file. Used later to determine the header of the ETC Calibration Precision Report",
         default=datetime.datetime.now().strftime(
             "Tile Measurements %y-%m-%d %H:%M"
         ),
@@ -176,7 +176,6 @@ def main():
     )
 
     args = parser.parse_args()
-    pass
     tcc = PQ_TestColorsConfig(
         ramp_samples=args.grey_n,
         ramp_repeats=1,
@@ -232,7 +231,6 @@ def main():
         testColors=test_colors.colors,
         notes=MeasurementList_Notes(notes=args.tile_name),
     )
-    pass
 
 
 if __name__ == "__main__":
