@@ -1,13 +1,19 @@
+"""
+colour_workbench utilities
+"""
+from datetime import datetime
 import logging
 import re
 import sys
+import time
+import zoneinfo
 
 BASE_LOGGER_NAME = "colour_workbench"
 
 __all__ = ["get_logger", "get_valid_filename"]
 
 
-class SuspiciousFileOperation(Exception):
+class SuspiciousFileOperationError(Exception):
     """Generated when a user does something suspicious with file names"""
 
 
@@ -33,14 +39,14 @@ def get_valid_filename(name: str) -> str:
     s = re.sub(r"(?u)[^-\w.]", "", s)
     s = re.sub(r"_+-+_+", "__", s)
     if s in {"", ".", ".."}:
-        raise SuspiciousFileOperation(
+        raise SuspiciousFileOperationError(
             f"Could not derive file name from '{name}'"
         )
     return s
 
 
 def get_logger(name: str = "") -> logging.Logger:
-    """Creates / returns loggers for the colour_workbench module
+    """Create a logger for the colour_workbench module
 
     Parameters
     ----------
@@ -55,6 +61,16 @@ def get_logger(name: str = "") -> logging.Logger:
     if name == "":
         return logging.getLogger(f"{BASE_LOGGER_NAME}")
     return logging.getLogger(f"{BASE_LOGGER_NAME}.{name}")
+
+
+def datetime_now() -> datetime:
+    """Return time zone aware datetime object
+
+    Returns
+    -------
+    datetime
+    """
+    return datetime.now(zoneinfo.ZoneInfo(time.tzname[0]))
 
 
 BASE_LOGGER = get_logger()

@@ -1,5 +1,7 @@
+"""
+Implements control of external test pattern generators.
+"""
 import json
-from time import sleep
 
 import numpy as np
 import requests
@@ -27,7 +29,7 @@ class TPGController:
         return self._ip
 
     def __init__(self, ip: str):
-        """Initializes the controller object for a TPG server located at the `ip`
+        """Create a controller object for a TPG server located at the `ip`
 
         Parameters
         ----------
@@ -51,22 +53,22 @@ class TPGController:
             the color to set. Values can be between 0 and 1023
 
         Raises
-        ______
+        ------
         ValueError
             if the requested color is not a valid 3-vector
         ConnectionError
             from any other exceptions
         """
-        try:
-            color = np.asarray(color, np.float64)
-            if color.shape != (3,):
-                raise ValueError("color must be a 3 vector!")
+        color = np.asarray(color, np.float64)
+        if color.shape != (3,):
+            raise ValueError("color must be a 3 vector!")
 
+        try:
             url = f"http://{self._ip}:30010/remote/object/call"
 
             payload = json.dumps(
                 {
-                    "objectPath": "/TestPatternGenerator/Levels/L_TestPattern.L_TestPattern:PersistentLevel.BP_RemoteControlManager_C_1",
+                    "objectPath": "/TestPatternGenerator/Levels/L_TestPattern.L_TestPattern:PersistentLevel.BP_RemoteControlManager_C_1",  # noqa: E501
                     "functionName": "Update PPVColor",
                     "parameters": {
                         "InColor": {
@@ -85,15 +87,3 @@ class TPGController:
             )
         except Exception as e:
             raise ConnectionError("Could not send test color.") from e
-
-
-def _main():
-    tpg = TPGController("10.10.3.172")
-
-    while True:
-        tpg.send_color(np.random.randint(0, 1024, size=(3,)))
-        sleep(1)
-
-
-if __name__ == "__main__":
-    _main()

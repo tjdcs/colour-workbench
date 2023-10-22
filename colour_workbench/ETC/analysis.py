@@ -6,6 +6,7 @@ Center LED Color Accuracy Report
 from dataclasses import dataclass
 from functools import partial
 from textwrap import dedent
+from colour.hints import NDArrayBoolean, NDArrayFloat
 
 import numpy as np
 import numpy.typing as npt
@@ -43,20 +44,41 @@ class ReflectanceData:
 
     @property
     def glossiness_ratio(self) -> float:
+        """Calculate the ratio of 45:-45 to 45:0 measurements.
+
+        A correlate rating of the glossiness of a display.
+        """
         return self.reflectance_45_45 / self.reflectance_45_0
 
 
 class ColourPrecisionAnalysis:
+    """Analyze a measurement list for various colorimetric properties, like
+    dE2000 and dE ITP. Assuming PQ encoded test patterns.
+    """
+
     @property
-    def _snr_mask(self):
+    def _snr_mask(self) -> NDArrayBoolean:
+        """Mask to remove low-quality measurements from the analysis.
+
+        Returns
+        -------
+        NDArrayBoolean
+        """
         snr = 10 * np.log10(
             np.asarray([m.power for m in self._data.measurements])
-            / np.sum(self.black["spectral_deviation"])
+            / np.sum(self.black["power_stddev"])
         )
         return snr > 5
 
     @property
-    def _analysis_mask(self):
+    def _analysis_mask(self) -> NDArrayBoolean:
+        """Mask to remove any low-quality or error measurements, such as those
+        containing nan or inf values.
+
+        Returns
+        -------
+        NDArrayBoolean
+        """
         if hasattr(self, "_analysis_mask_cache"):
             return self._analysis_mask_cache
 
@@ -84,6 +106,13 @@ class ColourPrecisionAnalysis:
 
     @property
     def black(self) -> dict:
+        """A dictionary containing data from to the black test color
+        measurements.
+
+        Returns
+        -------
+        dict
+        """
         if hasattr(self, "_black"):
             return self._black
 
@@ -98,7 +127,8 @@ class ColourPrecisionAnalysis:
         tmp["values"] = np.transpose(
             np.array([m.spd.values for m in measurements])
         )
-        tmp["spectral_deviation"] = np.std(tmp["values"], axis=1)
+        tmp["spectral_stddev"] = np.std(tmp["values"], axis=1)
+        tmp["power_stddev"] = np.std([m.power for m in measurements])
 
         tmp["spd"] = np.mean(tmp["values"], axis=1)
         tmp["spd"] = savgol_filter(tmp["spd"], 5, 2, mode="nearest")
@@ -112,6 +142,7 @@ class ColourPrecisionAnalysis:
 
     @property
     def primary_matrix(self) -> npt.NDArray:
+        """The npm of the display"""
         if hasattr(self, "_pm"):
             return self._pm
 
@@ -158,6 +189,13 @@ class ColourPrecisionAnalysis:
 
     @property
     def grey(self):
+        """A dictionary containing data from to the grey test color
+        measurements.
+
+        Returns
+        -------
+        dict
+        """
         if hasattr(self, "_grey"):
             return self._grey
 
@@ -183,7 +221,7 @@ class ColourPrecisionAnalysis:
         for unique_idx, _ in enumerate(grey["uniques"][0]):
             umask = grey["uniques"][1] == unique_idx
             spd = MultiSpectralDistributions(
-                [m.spd for m in grey["measurements"][umask]]
+                data=[m.spd for m in grey["measurements"][umask]]
             )
             spd = (
                 SpectralDistribution(np.mean(spd.values, axis=1), spd.domain)
@@ -200,6 +238,13 @@ class ColourPrecisionAnalysis:
 
     @property
     def white(self):
+        """A dictionary containing data from to the white test color
+        measurements.
+
+        Returns
+        -------
+        dict
+        """
         if hasattr(self, "_white"):
             return self._white
 
@@ -222,15 +267,29 @@ class ColourPrecisionAnalysis:
         return self._white
 
     @property
-    def test_colors(self):
+    def test_colors(self) -> NDArrayFloat:
+        """The test colors (from the Test Pattern Generator) used for this
+        analysis.
+
+        Returns
+        -------
+        NDArray
+        """
         return self._data.test_colors[self._analysis_mask]
 
     @property
-    def measurements(self):
+    def measurements(self) -> npt.NDArray:
+        """
+        The test colors (from the Test Pattern Generator) used for this
+        analysis.
+        """
         return self._data.measurements[self._analysis_mask]
 
     @property
     def test_colors_linear(self):
+        """
+        Linearized and clipped test pattern colors. Assuming PQ!!
+        """
         if hasattr(self, "_test_colors_linear"):
             return self._test_colors_linear
 
@@ -243,6 +302,18 @@ class ColourPrecisionAnalysis:
 
     @property
     def measured_colors(self):
+        """A dictionary containing data from all of the
+        `ColourPrecisionAnalysis.test_colors` measurements.
+
+        Keys
+        ----
+        "XYZ"
+        "ICtCp"
+        "Lab":
+            with the `self.analysis_conditions` assumptions.
+        "uvp":
+            u'v' coordinates.
+        """
         if hasattr(self, "_act"):
             return self._act
         act = {}
@@ -259,6 +330,17 @@ class ColourPrecisionAnalysis:
 
     @property
     def expected_colors(self):
+        """A dictionary containing expected data / estimates from all of the
+        `ColourPrecisionAnalysis.test_colors` assuming perfect linear behavior with
+        `ColourPrecisionAnalysis.primary_matrix` and the PQ transfer function.
+
+        Keys
+        ----
+        "XYZ"
+        "ICtCp"
+        "Lab"
+        "uvp"
+        """
         if hasattr(self, "_est"):
             return self._est
         est = {}
@@ -273,6 +355,25 @@ class ColourPrecisionAnalysis:
 
     @property
     def error(self):
+        """Calculated difference between the
+        `ColourPrecisionAnalysis.measured_colors` and
+        `ColourPrecisionAnalysis.expected_colors`
+
+        Returns
+        -------
+        dict
+
+        Keys
+        ---
+        "XYZ"
+        "ICtCp"
+            dITP
+        "dI"
+            Brightness error according to dITP (ICtCp)
+        "dChromatic"
+            Chromatic error according to dITP (ICtCp)
+        "dE2000"
+        """
         if hasattr(self, "_err"):
             return self._err
         norm = partial(np.linalg.norm, axis=1)
@@ -303,6 +404,13 @@ class ColourPrecisionAnalysis:
 
     @property
     def metadata(self) -> MeasurementList_Notes:
+        """Measurement metadata.
+
+        Returns
+        -------
+        MeasurementList_Notes
+            The metadata saved in the measurement file.
+        """
         return self._data.metadata
 
     @metadata.setter
@@ -311,6 +419,15 @@ class ColourPrecisionAnalysis:
 
     @property
     def shortname(self) -> str:
+        """A short name that can be used in UI elements to identify this set of
+        tile measurements. Usually a model name and or serial number. If no user
+        set shortname is available in the measurement file, a quasi-unique one
+        will be calculated based on the spectrometer results.
+
+        Returns
+        -------
+        str
+        """
         if self._shortname is not None:
             return self._shortname
 
@@ -324,6 +441,7 @@ class ColourPrecisionAnalysis:
         self._shortname = name
 
     def __str__(self) -> str:
+        """Summary string containing dXYZ, dITP and dE2000"""
         # fmt: off
         return dedent(
             f"""
@@ -331,12 +449,16 @@ class ColourPrecisionAnalysis:
                 Mean dXYZ:   {np.mean(self.error["XYZ"]):>6.2f}    95% < {np.percentile((self.error["XYZ"]),95):>6.2f}
                 Mean dITP:   {np.mean(self.error["ICtCp"]):>6.2f}    95% < {np.percentile((self.error["ICtCp"]),95):>6.2f}
                 Mean dE2000: {np.mean(self.error["dE2000"]):>6.2f}    95% < {np.percentile((self.error["dE2000"]),95):>6.2f}
-            """
+            """  # noqa: E501
         )
         # fmt: on
 
     @dataclass
     class AnalysisConditions:
+        """The visual condition assumptions used to calculate dE2000 and Lab
+        values.
+        """
+
         adapting_luminance: float  # luminance of 20% grey object
 
     def __init__(self, measurements: MeasurementList):
@@ -352,8 +474,20 @@ class ColourPrecisionAnalysis:
             self._data.test_colors = self._data.test_colors / 255.0
 
 
-def analyse_measurements_from_file(file: str):
-    measurements = load_measurements(file)
+def analyze_measurements_from_file(filename: str) -> ColourPrecisionAnalysis:
+    """Load the file at `filename` and return the ColorPrecisionAnalysis
+
+    Parameters
+    ----------
+    file : str
+        file location to be opened. Should be the result of one of the
+        measurement scripts in colour_workbench.
+
+    Returns
+    -------
+    ColourPrecisionAnalysis
+    """
+    measurements = load_measurements(filename)
 
     fundamentalData = ColourPrecisionAnalysis(measurements)
     return fundamentalData

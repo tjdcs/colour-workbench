@@ -23,16 +23,32 @@ from matplotlib.gridspec import SubplotSpec
 from matplotlib.patches import Polygon
 from sklearn.cluster import KMeans
 
-from colour_workbench.ETC_reports.analysis import (
+from colour_workbench.ETC.analysis import (
     ColourPrecisionAnalysis,
     ReflectanceData,
 )
-from colour_workbench.ETC_reports.fonts import Anuphan
+from colour_workbench.ETC.fonts import Anuphan
 
 
 def plot_chromaticity_error(
     data: ColourPrecisionAnalysis, ax: Axes | None = None
 ):
+    """Plot the ∆u'v' in the given axes. Generates a chromaticity plot.
+
+    If no `ax` is supplied, one will be generated in a new figure window.
+
+    Parameters
+    ----------
+    data : ColourPrecisionAnalysis
+        The base color data for the plot.
+    ax : Axes | None, optional
+        Target axes, by default None
+
+    Returns
+    -------
+    Axes
+        The target or generated axes used.
+    """
     if ax is None:
         fig, ax = plot_ellipses_MacAdam1942_in_chromaticity_diagram_CIE1976UCS(
             standalone=False,
@@ -117,7 +133,8 @@ def plot_chromaticity_error(
     ax.text(
         0.63,
         -0.041,
-        "Elipses show 10x SDCM (MacAdam, 1942)\nArrows show 10x avg. error in each region",
+        "Elipses show 10x SDCM (MacAdam, 1942)\nArrows show 10x avg. error in "
+        "each region",
         horizontalalignment="right",
         verticalalignment="bottom",
         fontsize=8,
@@ -128,9 +145,27 @@ def plot_chromaticity_error(
         loc=(0.60, 0.1),
         fontsize=8,
     )
+    return ax
 
 
-def plot_eotf_accuracy(data: ColourPrecisionAnalysis, ax: Axes | None = None):
+def plot_eotf_accuracy(
+    data: ColourPrecisionAnalysis, ax: Axes | None = None
+) -> Axes:
+    """Plot the EOTF measurements on a log/log axes. If no `ax` is provided, one
+    will be generated in a new figure.
+
+    Parameters
+    ----------
+    data : ColourPrecisionAnalysis
+        The base color data for the plot.
+    ax : Axes | None, optional
+        Target axes, by default None
+
+    Returns
+    -------
+    Axes
+        The target or generated axes used.
+    """
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -189,12 +224,30 @@ def plot_eotf_accuracy(data: ColourPrecisionAnalysis, ax: Axes | None = None):
         fontsize=8,
         color="#6f5481",
     )
+    return ax
 
 
 def plot_wp_accuracy(
     data: ColourPrecisionAnalysis,
     fig_spec: tuple[Figure, SubplotSpec] | None = None,
-):
+) -> tuple[Axes, Axes]:
+    """Plot the white point accuracy over luminance values.
+
+    If no figure and subgrid spec is provided, one will be generated.
+
+    Parameters
+    ----------
+    data : ColourPrecisionAnalysis
+        The base color data for this plot
+    fig_spec : tuple[Figure, SubplotSpec] | None, optional
+        A (Figure, SubplotSpec) with room for 2 axes, by default None. None will
+        generate a new figure.
+
+    Returns
+    -------
+    tuple[Axes, Axes]
+        The two axes used for this plot.
+    """
     if fig_spec is None:
         fig, axs = plt.subplots(2, 1)
     else:
@@ -252,9 +305,9 @@ def plot_wp_accuracy(
         ax.set_xticks(xticks, [])
         ax.plot(ax.get_xlim(), (tgt_cct[0], tgt_cct[0]))
 
-        ax.text(pq.eotf_inverse_ST2084(0.11) * 1013, 6540, "D65", fontsize=8)  # type: ignore
+        ax.text(pq.eotf_inverse_ST2084(0.11) * 1013, 6540, "D65", fontsize=8)
         plot_max_nits_line(ax)
-        plot_y_tolerance_bg(
+        _plot_y_tolerance_bg(
             ax,
             tol_bounds=[
                 y_lim[0],
@@ -308,11 +361,11 @@ def plot_wp_accuracy(
         ax.set_xticks(xticks, xtick_labels)
 
         ax.plot(ax.get_xlim(), (tgt_cct[1], tgt_cct[1]))
-        ax.text(pq.eotf_inverse_ST2084(0.11) * 1013, 0.004, "D65", fontsize=8)  # type: ignore
+        ax.text(pq.eotf_inverse_ST2084(0.11) * 1013, 0.004, "D65", fontsize=8)
 
         x_max_nits = plot_max_nits_line(ax)
         ax.scatter(data.grey["uniques"][0], cct_list[:, 1])
-        plot_y_tolerance_bg(
+        _plot_y_tolerance_bg(
             ax,
             tol_bounds=[
                 y_lim[0],
@@ -357,11 +410,27 @@ def plot_wp_accuracy(
         )
 
     plot_wp_duv(axs[1])
+    return axs[0], axs[1]
 
 
 def plot_brightness_errors(
     data: ColourPrecisionAnalysis, ax: Axes | None = None
-):
+) -> Axes:
+    """Plot the dI errors according to dITP. If no `ax` is provided one will be
+    generated in a new figure.
+
+    Parameters
+    ----------
+    data : ColourPrecisionAnalysis
+        The base color data for this plot.
+    ax : Axes | None, optional
+        Target axes, by default None
+
+    Returns
+    -------
+    Axes
+        The target axes used or generated for the plot.
+    """
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -377,7 +446,7 @@ def plot_brightness_errors(
     ax.scatter(
         data.measured_colors["ICtCp"][:, 0],
         deltaI,
-        c=data.test_colors[:] / 1023,
+        c=data.test_colors[:] / 1023,  # type: ignore
         s=50,
     )
     ax.set_yscale("symlog", base=2)
@@ -416,15 +485,19 @@ def plot_brightness_errors(
     )
 
     ax.set_title("Brightness Error (∆ICtCp)")
-    plot_y_tolerance_bg(
+    _plot_y_tolerance_bg(
         ax,
         tol_bounds=[-(2**5), -(2**3), -2, -1, 1, 2, 2**3, 2**5],
         colors=["r", "r", "y", "g", "g", "y", "r", "r"],
         aspect_multiplier=2,
     )
+    return ax
 
 
-def plot_y_tolerance_bg(ax, tol_bounds, colors, aspect_multiplier=1):
+def _plot_y_tolerance_bg(ax, tol_bounds, colors, aspect_multiplier=1):
+    """Create a y axis background gradient based on the stops and colors in
+    `tol_bounds` and `colors`
+    """
     from scipy.interpolate import Akima1DInterpolator
 
     color_dict = {
@@ -448,7 +521,22 @@ def plot_y_tolerance_bg(ax, tol_bounds, colors, aspect_multiplier=1):
 
 def plot_chromatic_error(
     data: ColourPrecisionAnalysis, ax: Axes | None = None
-):
+) -> Axes:
+    """Plot dChromatic based on dITP.
+
+    Parameters
+    ----------
+    data : ColourPrecisionAnalysis
+        The base color data
+    ax : Axes | None, optional
+        The axis to use. If None is provided, a new figure and axis will be
+        created (default).
+
+    Returns
+    -------
+    Axes
+        The target or generated axes that was used for plotting
+    """
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -464,7 +552,7 @@ def plot_chromatic_error(
     ax.scatter(
         data.measured_colors["ICtCp"][:, 0],
         delta_cr,
-        c=data.test_colors / 1023,
+        c=data.test_colors / 1023,  # type: ignore
         s=50,
     )
     ax.set_yscale("symlog", base=2)
@@ -489,25 +577,48 @@ def plot_chromatic_error(
 
     ax.set_title("Chromatic Error (∆ICtCp)")
 
-    plot_y_tolerance_bg(
+    _plot_y_tolerance_bg(
         ax,
         tol_bounds=[0, 1, 2, 2**3, 2**5],
         colors=["g", "g", "y", "r", "r"],
     )
+    return ax
 
 
 def plot_report_header(ax: Axes, data: ColourPrecisionAnalysis):
-    ax.set_facecolor("pink")
+    """Plot the report header / title bar.
+
+    Parameters
+    ----------
+    ax : Axes
+        The target axes
+    data : ColourPrecisionAnalysis
+        The base color data
+    """
     ax.set_ylim(0, 1)
     ax.set_axis_off()
     ax.text(0, 0, f"{data.shortname}", va="bottom", fontsize=16)
 
 
-def print_statistics(
+def plot_error_statistics(
     data: ColourPrecisionAnalysis,
     reflectance: ReflectanceData | None = None,
     ax: Axes | None = None,
 ):
+    """Plot the error statistics including mean and 95th percentile for dITP and
+    dE2000.
+
+    Optionally this also plots the reflectance information.
+
+    Parameters
+    ----------
+    data : ColourPrecisionAnalysis
+        The base color data
+    reflectance : ReflectanceData | None, optional
+        The reflectance data, by default None
+    ax : Axes | None, optional
+        Target axes, by default None
+    """
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -595,7 +706,23 @@ def print_statistics(
 def generate_report_page(
     color_data: ColourPrecisionAnalysis,
     reflectance_data: ReflectanceData | None = None,
-):
+) -> Figure:
+    """Given the `color_data` and `reflectance_data` plot a report page
+    summarizing display performance. This can be saved to pdf.
+
+    Parameters
+    ----------
+    color_data : ColourPrecisionAnalysis
+        The base color data
+    reflectance_data : ReflectanceData | None, optional
+        Reflectance data, usually measured separately from the color precision
+        data by default None
+
+    Returns
+    -------
+    Figure
+        the `matplotlib.figure.Figure` containing analysis plots.
+    """
     matplotlib.font_manager.fontManager.addfont(
         str(importlib.resources.files(Anuphan).joinpath("Anuphan.ttf"))
     )
@@ -638,7 +765,7 @@ def generate_report_page(
     plot_eotf_accuracy(color_data, ax)
 
     ax: Axes = fig.add_subplot(left_col_gs[0])
-    print_statistics(color_data, reflectance_data, ax)
+    plot_error_statistics(color_data, reflectance_data, ax)
 
     ######################################
 

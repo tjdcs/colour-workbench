@@ -1,23 +1,27 @@
 #!python3
 
+"""
+Script module for analyzing display measurement files and generating PDFs.
+"""
 
 from colour.utilities.verbose import suppress_warnings
 
 
 def main():
+    """
+    The entry point for measurement analysis and PDF generation.
+    """  # noqa: D401
     import argparse
-    import os
-    import platform
     from pathlib import Path
 
     from matplotlib import pyplot as plt
     from specio.fileio import MeasurementList_Notes
 
-    from colour_workbench.ETC_reports import (
-        analyse_measurements_from_file,
+    from colour_workbench.ETC import (
+        analyze_measurements_from_file,
         generate_report_page,
     )
-    from colour_workbench.ETC_reports.analysis import ReflectanceData
+    from colour_workbench.ETC.analysis import ReflectanceData
     from colour_workbench.utilities import get_valid_filename
 
     program_description = """
@@ -32,7 +36,11 @@ def main():
     parser.add_argument(
         "-o",
         "--out",
-        help="The output file name. Will be appended to .pdf if the file extension is excluded. If the output is a directory, the file name will be determined by the contents of the measurements.",
+        help=(
+            "The output file name. Will be appended to .pdf if the file "
+            "extension is excluded. If the output is a directory, the file "
+            "name will be determined by the contents of the measurements."
+        ),
         default=None,
     )
 
@@ -49,10 +57,6 @@ def main():
     )
 
     parser.add_argument(
-        "--open", action="store_true", help="Open the file after generating."
-    )
-
-    parser.add_argument(
         "--strip-details",
         action="store_true",
         help="Remove metadata / notes from the output PDF",
@@ -66,7 +70,7 @@ def main():
         raise FileNotFoundError()
 
     # Analyze data
-    data = analyse_measurements_from_file(str(in_file))
+    data = analyze_measurements_from_file(str(in_file))
 
     if args.strip_details:
         data.metadata = MeasurementList_Notes(software=None)
@@ -101,16 +105,11 @@ def main():
 
     fig.savefig(str(out_file_name), facecolor=[1, 1, 1])
 
-    print(f"Analysis saved to: {out_file_name!s}")
+    print(f"Analysis saved to: {out_file_name!s}")  # noqa: T201
     plt.close(fig)
-    if args.open:
-        if platform.system() == "Windows":
-            os.startfile(str(out_file_name))  # type: ignore
-        else:
-            os.system(f"open '{out_file_name!s}'")
 
 
 if __name__ == "__main__":
-    print("Ignoring colour warnings")
+    print("Ignoring colour warnings")  # noqa: T201
     with suppress_warnings(colour_warnings=True, python_warnings=True):
         main()

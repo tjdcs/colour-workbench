@@ -1,3 +1,7 @@
+"""
+Implements generation of test color sets. Usually used to generate control lists
+for a test pattern generator.
+"""
 from dataclasses import dataclass
 
 import numpy as np
@@ -107,7 +111,6 @@ class PQ_TestColorsConfig(TestColorsConfig):
 def generate_colors(
     config: PQ_TestColorsConfig | TestColorsConfig,
     random_seed: int | None = None,
-    **kwargs
 ) -> TestColors:
     """Generate a set of `TestColors` according to the input parameter set. Can
     generate test colors for absolute luminance or relative by using the
