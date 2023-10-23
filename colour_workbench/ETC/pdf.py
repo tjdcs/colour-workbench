@@ -51,13 +51,13 @@ def plot_chromaticity_error(
     """
     if ax is None:
         fig, ax = plot_ellipses_MacAdam1942_in_chromaticity_diagram_CIE1976UCS(
-            standalone=False,
+            show=False,
             diagram_opacity=0.3,
             title="CIE u'v' (1976) Average Error",
         )
     else:
         plot_ellipses_MacAdam1942_in_chromaticity_diagram_CIE1976UCS(
-            standalone=False,
+            show=False,
             diagram_opacity=0.3,
             axes=ax,
         )
