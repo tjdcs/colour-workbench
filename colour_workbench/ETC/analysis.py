@@ -77,13 +77,13 @@ class ColourPrecisionAnalysis:
         snr = 10 * np.log10(
             np.asarray(
                 [
-                    np.max((m.power - self.black["power"], 0))
+                    max(m.power - self.black["power"], 0)
                     for m in self._data.measurements
                 ]
             )
             / noise
         )
-        return snr > 5
+        return snr > 3
 
     @property
     def _analysis_mask(self) -> NDArrayBoolean:
@@ -335,6 +335,7 @@ class ColourPrecisionAnalysis:
         act["XYZ"] = XYZ = (
             np.asarray([m.XYZ for m in self.measurements]) - self.black["XYZ"]
         )
+        act["XYZ"][act["XYZ"] < 0] = 0
         act["ICtCp"] = XYZ_to_ICtCp(XYZ)
         act["Lab"] = XYZ_to_Lab(
             act["XYZ"] / self.analysis_conditions.adapting_luminance * 5
@@ -509,6 +510,7 @@ def analyze_measurements_from_file(filename: str) -> ColourPrecisionAnalysis:
 
 
 if __name__ == "__main__":
-    fn = "tjdcs/data/anon/1ba5c5f8.csmf"
+    fn = "tjdcs/data/anon/a8adf80a.csmf"
     data = analysis = analyze_measurements_from_file(fn)
     print(analysis)  # noqa: T201
+    breakpoint()

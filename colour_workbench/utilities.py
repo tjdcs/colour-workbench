@@ -1,12 +1,12 @@
 """
 colour_workbench utilities
 """
-from datetime import datetime
 import logging
 import re
 import sys
 import time
 import zoneinfo
+from datetime import datetime
 
 BASE_LOGGER_NAME = "colour_workbench"
 

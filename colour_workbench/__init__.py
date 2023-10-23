@@ -1,16 +1,16 @@
-from .tpg_controller import TPGController
+from .measurement_controllers import (
+    DisplayMeasureController,
+    ProgressCallback,
+    ProgressPrinter,
+    ProgressUpdate,
+)
 from .test_colors import (
+    PQ_TestColorsConfig,
     TestColors,
     TestColorsConfig,
-    PQ_TestColorsConfig,
     generate_colors,
 )
-from .measurement_controllers import (
-    ProgressCallback,
-    ProgressUpdate,
-    ProgressPrinter,
-    DisplayMeasureController,
-)
+from .tpg_controller import TPGController
 
 __all__ = [
     "TPGController",
