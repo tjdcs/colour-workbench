@@ -6,7 +6,6 @@ Center LED Color Accuracy Report
 from dataclasses import dataclass
 from functools import partial
 from textwrap import dedent
-from colour.hints import NDArrayBoolean, NDArrayFloat
 
 import numpy as np
 import numpy.typing as npt
@@ -16,6 +15,7 @@ from colour.colorimetry.spectrum import (
 )
 from colour.colorimetry.tristimulus_values import sd_to_XYZ
 from colour.difference.delta_e import delta_E_CIE2000
+from colour.hints import NDArrayBoolean, NDArrayFloat
 from colour.models.cie_lab import XYZ_to_Lab
 from colour.models.cie_luv import Luv_to_uv, XYZ_to_Luv
 from colour.models.cie_xyy import XYZ_to_xy, xy_to_XYZ
@@ -75,9 +75,15 @@ class ColourPrecisionAnalysis:
             )
         )
         snr = 10 * np.log10(
-            np.asarray([m.power for m in self._data.measurements]) / noise
+            np.asarray(
+                [
+                    np.max((m.power - self.black["power"], 0))
+                    for m in self._data.measurements
+                ]
+            )
+            / noise
         )
-        return snr > 3
+        return snr > 5
 
     @property
     def _analysis_mask(self) -> NDArrayBoolean:
@@ -503,6 +509,6 @@ def analyze_measurements_from_file(filename: str) -> ColourPrecisionAnalysis:
 
 
 if __name__ == "__main__":
-    fn = "data/demo_measurements.csmf"
-    analysis = analyze_measurements_from_file(fn)
-    print(analysis)
+    fn = "tjdcs/data/anon/1ba5c5f8.csmf"
+    data = analysis = analyze_measurements_from_file(fn)
+    print(analysis)  # noqa: T201
