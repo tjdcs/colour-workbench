@@ -64,11 +64,20 @@ class ColourPrecisionAnalysis:
         -------
         NDArrayBoolean
         """
-        snr = 10 * np.log10(
-            np.asarray([m.power for m in self._data.measurements])
-            / np.sum(self.black["power_stddev"])
+        noise = np.mean(
+            np.max(
+                np.sum(
+                    [m.spd.values for m in self.black["measurements"]]
+                    - self.black["spd"].values,
+                    axis=1,
+                ),
+                0,
+            )
         )
-        return snr > 5
+        snr = 10 * np.log10(
+            np.asarray([m.power for m in self._data.measurements]) / noise
+        )
+        return snr > 3
 
     @property
     def _analysis_mask(self) -> NDArrayBoolean:
@@ -491,3 +500,9 @@ def analyze_measurements_from_file(filename: str) -> ColourPrecisionAnalysis:
 
     fundamentalData = ColourPrecisionAnalysis(measurements)
     return fundamentalData
+
+
+if __name__ == "__main__":
+    fn = "data/demo_measurements.csmf"
+    analysis = analyze_measurements_from_file(fn)
+    print(analysis)
