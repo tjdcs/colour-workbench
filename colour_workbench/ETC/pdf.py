@@ -50,7 +50,7 @@ def plot_chromaticity_error(
         The target or generated axes used.
     """
     if ax is None:
-        fig, ax = plot_ellipses_MacAdam1942_in_chromaticity_diagram_CIE1976UCS(
+        _, ax = plot_ellipses_MacAdam1942_in_chromaticity_diagram_CIE1976UCS(
             show=False,
             diagram_opacity=0.3,
             title="CIE u'v' (1976) Average Error",
@@ -301,7 +301,7 @@ def plot_wp_accuracy(
         ax.set_ylim(*y_lim)
 
         ax.set_title("Whitepoint Error")
-        ax.set_ylabel("CCT (°K)")
+        ax.set_ylabel("CCT (°K)\n<- Warmer / Cooler ->")
         ax.set_xticks(xticks, [])
         ax.plot(ax.get_xlim(), (tgt_cct[0], tgt_cct[0]))
 

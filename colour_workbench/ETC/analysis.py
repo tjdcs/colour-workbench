@@ -50,6 +50,17 @@ class ReflectanceData:
         """
         return self.reflectance_45_45 / self.reflectance_45_0
 
+    def __str__(self) -> str:
+        """Summarize reflectance data"""
+        return dedent(
+            f"""
+            Reflectance Data:
+                45:-45 (specular) -> {self.reflectance_45_45 * 100:0.2f}%
+                45:0    (matte)   -> {self.reflectance_45_0 * 100:0.2f}%
+                Glossiness Ratio  -> {self.glossiness_ratio:.1f}
+            """
+        )
+
 
 class ColourPrecisionAnalysis:
     """Analyze a measurement list for various colorimetric properties, like
@@ -507,10 +518,3 @@ def analyze_measurements_from_file(filename: str) -> ColourPrecisionAnalysis:
 
     fundamentalData = ColourPrecisionAnalysis(measurements)
     return fundamentalData
-
-
-if __name__ == "__main__":
-    fn = "tjdcs/data/anon/a8adf80a.csmf"
-    data = analysis = analyze_measurements_from_file(fn)
-    print(analysis)  # noqa: T201
-    breakpoint()
