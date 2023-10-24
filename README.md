@@ -21,8 +21,8 @@ After installing `poetry` open a terminal into the project directory and run
 
 In visual studio code make sure to select the correct python environment and
 finally you can start experimenting. A good entry point is to look at the
-[README](colour_workbenc/ETC/README.ipynb) and then start your own notebooks in
-the [notebooks](notebooks) folder. 
+[README](colour_workbench/ETC/README.ipynb) in the ETD Display Evaluation folder
+and then start your own notebooks in the [notebooks](notebooks) folder. 
 
 ## Test Pattern Generator
 
