@@ -356,7 +356,7 @@ def plot_wp_accuracy(
             rotation=55,
         )
 
-        ax.set_ylabel("∆uv (CIE 1960)\n← Pink / Green →")
+        ax.set_ylabel("∆uv (CIE 1960)\n← Magenta / Green →")
 
         ax.set_xticks(xticks, xtick_labels)
 
