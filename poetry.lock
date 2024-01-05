@@ -926,13 +926,13 @@ files = [
 
 [[package]]
 name = "ipykernel"
-version = "6.25.2"
+version = "6.26.0"
 description = "IPython Kernel for Jupyter"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "ipykernel-6.25.2-py3-none-any.whl", hash = "sha256:2e2ee359baba19f10251b99415bb39de1e97d04e1fab385646f24f0596510b77"},
-    {file = "ipykernel-6.25.2.tar.gz", hash = "sha256:f468ddd1f17acb48c8ce67fcfa49ba6d46d4f9ac0438c1f441be7c3d1372230b"},
+    {file = "ipykernel-6.26.0-py3-none-any.whl", hash = "sha256:3ba3dc97424b87b31bb46586b5167b3161b32d7820b9201a9e698c71e271602c"},
+    {file = "ipykernel-6.26.0.tar.gz", hash = "sha256:553856658eb8430bbe9653ea041a41bff63e9606fc4628873fc92a6cf3abd404"},
 ]
 
 [package.dependencies]
@@ -1196,13 +1196,13 @@ qtconsole = "*"
 
 [[package]]
 name = "jupyter-client"
-version = "8.4.0"
+version = "8.5.0"
 description = "Jupyter protocol implementation and client libraries"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_client-8.4.0-py3-none-any.whl", hash = "sha256:6a2a950ec23a8f62f9e4c66acec7f0ea6c7d1f80ba0992e747b10c56ce2e6dbe"},
-    {file = "jupyter_client-8.4.0.tar.gz", hash = "sha256:dc1b857d5d7d76ac101766c6e9b646bf18742721126e72e5d484c75a993cada2"},
+    {file = "jupyter_client-8.5.0-py3-none-any.whl", hash = "sha256:c3877aac7257ec68d79b5c622ce986bd2a992ca42f6ddc9b4dd1da50e89f7028"},
+    {file = "jupyter_client-8.5.0.tar.gz", hash = "sha256:e8754066510ce456358df363f97eae64b50860f30dc1fe8c6771440db3be9a63"},
 ]
 
 [package.dependencies]
@@ -1301,13 +1301,13 @@ jupyter-server = ">=1.1.2"
 
 [[package]]
 name = "jupyter-server"
-version = "2.8.0"
+version = "2.9.1"
 description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_server-2.8.0-py3-none-any.whl", hash = "sha256:c57270faa6530393ae69783a2d2f1874c718b9f109080581ea076b05713249fa"},
-    {file = "jupyter_server-2.8.0.tar.gz", hash = "sha256:b11e2ba80667c75f55630faf8ac3d5809f8734f9006d65cce117c46a0a516ab8"},
+    {file = "jupyter_server-2.9.1-py3-none-any.whl", hash = "sha256:21ad1a3d455d5a79ce4bef5201925cd17510c17898cf9d54e3ccfb6b12734948"},
+    {file = "jupyter_server-2.9.1.tar.gz", hash = "sha256:9ba71be4b9c16e479e4c50c929f8ac4b1015baf90237a08681397a98c76c7e5e"},
 ]
 
 [package.dependencies]
@@ -2308,13 +2308,13 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.332"
+version = "1.1.333"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.332-py3-none-any.whl", hash = "sha256:4802bdc603f165ccfb84338ef850e90181abbb621028b09b81ec8aa5e97dfae2"},
-    {file = "pyright-1.1.332.tar.gz", hash = "sha256:a47f760c2f00aa9f593f78a7b22f98b22a9b9e1952d6a31dbed91842ca47b0b3"},
+    {file = "pyright-1.1.333-py3-none-any.whl", hash = "sha256:f0a7b7b0cac11c396b17ef3cf6c8527aca1269edaf5cf8203eed7d6dd1ef52aa"},
+    {file = "pyright-1.1.333.tar.gz", hash = "sha256:1c49b0029048120c4378f3baf6c1dcbbfb221678bb69654fe773c514430ac53c"},
 ]
 
 [package.dependencies]
@@ -2340,13 +2340,13 @@ cp2110 = ["hidapi"]
 
 [[package]]
 name = "pytest"
-version = "7.4.2"
+version = "7.4.3"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.4.2-py3-none-any.whl", hash = "sha256:1d881c6124e08ff0a1bb75ba3ec0bfd8b5354a01c194ddd5a0a870a48d99b002"},
-    {file = "pytest-7.4.2.tar.gz", hash = "sha256:a766259cfab564a2ad52cb1aae1b881a75c3eb7e34ca3779697c23ed47c47069"},
+    {file = "pytest-7.4.3-py3-none-any.whl", hash = "sha256:0d009c083ea859a71b76adf7c1d502e4bc170b80a8ef002da5806527b9591fac"},
+    {file = "pytest-7.4.3.tar.gz", hash = "sha256:d989d136982de4e3b29dabcc838ad581c64e8ed52c11fbe86ddebd9da0818cd5"},
 ]
 
 [package.dependencies]
@@ -3230,18 +3230,18 @@ telegram = ["requests"]
 
 [[package]]
 name = "traitlets"
-version = "5.11.2"
+version = "5.12.0"
 description = "Traitlets Python configuration system"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "traitlets-5.11.2-py3-none-any.whl", hash = "sha256:98277f247f18b2c5cabaf4af369187754f4fb0e85911d473f72329db8a7f4fae"},
-    {file = "traitlets-5.11.2.tar.gz", hash = "sha256:7564b5bf8d38c40fa45498072bf4dc5e8346eb087bbf1e2ae2d8774f6a0f078e"},
+    {file = "traitlets-5.12.0-py3-none-any.whl", hash = "sha256:81539f07f7aebcde2e4b5ab76727f53eabf18ad155c6ed7979a681411602fa47"},
+    {file = "traitlets-5.12.0.tar.gz", hash = "sha256:833273bf645d8ce31dcb613c56999e2e055b1ffe6d09168a164bcd91c36d5d35"},
 ]
 
 [package.extras]
 docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
-test = ["argcomplete (>=3.0.3)", "mypy (>=1.5.1)", "pre-commit", "pytest (>=7.0,<7.5)", "pytest-mock", "pytest-mypy-testing"]
+test = ["argcomplete (>=3.0.3)", "mypy (>=1.6.0)", "pre-commit", "pytest (>=7.0,<7.5)", "pytest-mock", "pytest-mypy-testing"]
 
 [[package]]
 name = "tsplib95"

@@ -190,7 +190,7 @@ class ColourPrecisionAnalysis:
             )
         )
 
-        from sklearn.covariance import EllipticEnvelope
+        from sklearn.covariance import EllipticEnvelope, EmpiricalCovariance
 
         xy = np.zeros((4, 2))
         for idx, m in enumerate(color_masks):
@@ -206,8 +206,9 @@ class ColourPrecisionAnalysis:
                 xy[idx, :] = cov.location_
             except ValueError:
                 # Covariance fit failed, probably because the data is well
-                # clustered, traditional mean can be used instead.
-                xy[idx, :] = np.mean(xys, axis=0)
+                # clustered, traditional covariance can be used instead.
+                cov = EmpiricalCovariance().fit(xys)
+                xy[idx, :] = cov.location_
 
         # Fit NPM using colour
         self._pm = normalised_primary_matrix(xy[0:3, :], xy[3, :])
