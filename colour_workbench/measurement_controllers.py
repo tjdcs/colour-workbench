@@ -12,7 +12,7 @@ from typing import Callable, cast
 import numpy as np
 from numpy.typing import ArrayLike
 from specio.measurement import Measurement
-from specio.spectrometer import SpecRadiometer
+from specio.spectrometers import SpecRadiometer
 
 from colour_workbench.test_colors import (
     TestColors,
