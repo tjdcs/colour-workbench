@@ -174,7 +174,7 @@ def generate_colors(
 
     random = rng.integers(
         low=0,
-        high=config.quantized_range,
+        high=config.max_channel_value,
         endpoint=True,
         size=(config.random, 3),
     )

@@ -4,8 +4,6 @@ colour_workbench utilities
 import logging
 import re
 import sys
-import time
-import zoneinfo
 from datetime import datetime
 
 BASE_LOGGER_NAME = "colour_workbench"
@@ -63,6 +61,9 @@ def get_logger(name: str = "") -> logging.Logger:
     return logging.getLogger(f"{BASE_LOGGER_NAME}.{name}")
 
 
+SYSTEM_TIME_ZONE = tz = datetime.now().astimezone().tzinfo
+
+
 def datetime_now() -> datetime:
     """Return time zone aware datetime object
 
@@ -70,7 +71,8 @@ def datetime_now() -> datetime:
     -------
     datetime
     """
-    return datetime.now(zoneinfo.ZoneInfo(time.tzname[0]))
+
+    return datetime.now(tz=SYSTEM_TIME_ZONE)
 
 
 BASE_LOGGER = get_logger()
