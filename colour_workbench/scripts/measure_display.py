@@ -9,14 +9,13 @@ import argparse
 from pathlib import Path
 
 import numpy as np
-from specio import ColorimetryResearch
-from specio.ColorimetryResearch import CR_Definitions
+import specio.spectrometers.colorimetry_research as cr
 from specio.fileio import (
     MeasurementList,
     MeasurementList_Notes,
     save_measurements,
 )
-from specio.spectrometer import SpecRadiometer
+from specio.spectrometers.common import VirtualSpectrometer
 
 from colour_workbench.ETC.analysis import ColourPrecisionAnalysis
 from colour_workbench.measurement_controllers import (
@@ -158,12 +157,7 @@ parser.add_argument(
 parser.add_argument(
     "--measurement-speed",
     choices=[
-        *zip(
-            *[
-                v.values
-                for v in CR_Definitions.MeasurementSpeed.__members__.values()
-            ]
-        )
+        *zip(*[v.values for v in cr.MeasurementSpeed.__members__.values()])
     ][2],
     help='The number of random test colors to include. Default="Normal"',
     default="normal",
@@ -214,15 +208,15 @@ test_colors = generate_colors(tcc)
 tpg = TPGController(args.tpg_ip)
 
 if args.use_virtual == -1:
-    cr = SpecRadiometer()
+    meter = VirtualSpectrometer()
 else:
-    cr = ColorimetryResearch.CRSpectrometer(
-        speed=CR_Definitions.MeasurementSpeed(args.measurement_speed)
-    )
+    meter = cr.CRSpectrometer.discover()
+    meter.measurement_speed = cr.MeasurementSpeed(args.measurement_speed)
+
 
 dmc = DisplayMeasureController(
     tpg=tpg,
-    cr=cr,
+    cr=meter,
     color_list=test_colors,
     progress_callbacks=[ProgressPrinter()],
 )
@@ -230,6 +224,7 @@ dmc.random_colors_duration = args.stabilization_time
 
 save_path = Path(args.save_directory, args.save_file)
 save_path.parent.mkdir(parents=True, exist_ok=True)
+save_path.with_suffix(".csmf")
 
 measurements = dmc.run_measurements(warmup_time=args.warmup * 60)
 
@@ -253,7 +248,7 @@ except Exception as e:
         notes=MeasurementList_Notes(notes=args.tile_name),
     )
     raise RuntimeError(
-        f"Failed to analyze measurements. Saving file to: {save_path!s}"
+        f"Failed to analyze measurements. Saving file to: {save_path:s}"
     ) from e
 
 save_measurements(
@@ -263,3 +258,5 @@ save_measurements(
     testColors=test_colors.colors,
     notes=MeasurementList_Notes(notes=args.tile_name),
 )
+
+print(f"File Saved to: {save_path:s}")
