@@ -101,7 +101,7 @@ parser.add_argument(
     default=10,
     help=("The bit depth used for the test colors list"),
     required=False,
-    type=int
+    type=int,
 )
 
 parser.add_argument(
@@ -213,6 +213,9 @@ tcc = PQ_TestColorsConfig(
     max_nits=args.max_nits,
 )
 test_colors = generate_colors(tcc)
+test_colors.colors = (
+    test_colors.colors * (1023 / tcc.quantized_range)
+).astype(np.int16)
 tpg = TPGController(args.tpg_ip)
 
 if args.use_virtual == -1:
