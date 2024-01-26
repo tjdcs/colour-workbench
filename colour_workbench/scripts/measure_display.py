@@ -97,6 +97,14 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--bit-depth",
+    default=10,
+    help=("The bit depth used for the test colors list"),
+    required=False,
+    type=int
+)
+
+parser.add_argument(
     "--grey-n",
     default=25,
     help="The number of samples to measure in a single grey scale. Default=25",
@@ -200,7 +208,7 @@ tcc = PQ_TestColorsConfig(
     blacks=args.black_n,
     whites=args.white_n,
     random=args.random,
-    quantized_bits=10,
+    quantized_bits=args.bit_depth,
     first_light=args.min_above_black,
     max_nits=args.max_nits,
 )
