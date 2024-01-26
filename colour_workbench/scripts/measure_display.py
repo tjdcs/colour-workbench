@@ -235,7 +235,7 @@ dmc.random_colors_duration = args.stabilization_time
 
 save_path = Path(args.save_directory, args.save_file)
 save_path.parent.mkdir(parents=True, exist_ok=True)
-save_path.with_suffix(".csmf")
+save_path = save_path.with_suffix(".csmf")
 
 measurements = dmc.run_measurements(warmup_time=args.warmup * 60)
 
